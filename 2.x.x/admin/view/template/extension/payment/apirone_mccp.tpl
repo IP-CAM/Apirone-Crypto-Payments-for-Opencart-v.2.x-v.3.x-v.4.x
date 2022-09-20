@@ -26,11 +26,6 @@
             <button type="button" class="close" data-dismiss="alert">&times;</button>
         </div>
         <?php endif; ?>
-        <?php if (isset($error_empty_currencies) && $error_empty_currencies) : ?>
-        <div class="alert alert-danger"><i class="fa fa-exclamation-circle"></i> <?php echo $error_empty_currencies; ?>
-            <button type="button" class="close" data-dismiss="alert">&times;</button>
-        </div>
-        <?php endif; ?>
         <div class="panel panel-default">
             <div class="panel-heading">
                 <h3 class="panel-title"><i class="fa fa-pencil"></i> <?php echo $text_edit; ?> (<?php echo $text_plugin_version . ' ' . $apirone_mccp_version; ?>)</h3>

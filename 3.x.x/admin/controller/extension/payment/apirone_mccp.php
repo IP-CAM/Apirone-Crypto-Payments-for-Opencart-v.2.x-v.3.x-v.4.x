@@ -5,7 +5,7 @@ use ApironeApi\Apirone;
 require_once(DIR_SYSTEM . 'library/apirone_api/Apirone.php');
 
 // Define Plugin version
-define ('PLUGIN_VERSION', '1.1.0');
+define ('PLUGIN_VERSION', '1.1.1');
 
 class ControllerExtensionPaymentApironeMccp extends Controller {
     private $error = array();
@@ -23,6 +23,7 @@ class ControllerExtensionPaymentApironeMccp extends Controller {
 
         $errors_count = 0;
         $active_currencies = 0;
+        $currencies = array();
 
         if (!$this->user->hasPermission('modify', 'extension/payment/apirone_mccp')) {
             $data['error'] = $this->language->get('error_permission');
@@ -81,7 +82,7 @@ class ControllerExtensionPaymentApironeMccp extends Controller {
         $this->setValue($data, 'payment_apirone_mccp_secret');
         $this->setValue($data, 'payment_apirone_mccp_testcustomer');
 
-        if ($active_currencies == 0 || $data['payment_apirone_mccp_timeout'] <= 0 ) {
+        if ($active_currencies == 0 || $data['payment_apirone_mccp_timeout'] <= 0 || count($currencies) == 0) {
             $errors_count++;            
         }
 
@@ -114,8 +115,8 @@ class ControllerExtensionPaymentApironeMccp extends Controller {
             }
             else {
                 // No addresses
-                if ($active_currencies == 0 ) {
-                    $data['error_empty_currencies'] = $this->language->get('error_empty_currencies');
+                if($active_currencies == 0 ) {
+                    $data['error'] = $this->language->get('error_empty_currencies');
                 }
                 // Payment timeout
                 if($data['payment_apirone_mccp_timeout'] <= 0) {
@@ -141,10 +142,11 @@ class ControllerExtensionPaymentApironeMccp extends Controller {
         $data['geo_zones'] = $this->model_localisation_geo_zone->getGeoZones();
 
         $data['currencies'] = $currencies;
+        // Can't get currency list
+        if (count($currencies) == 0) {
+            $data['error'] = $this->language->get('error_service_not_available');
+        }
         
-        if (($active_currencies > 0))
-            $data['error_empty_currencies'] = false;
-
         $this->getBreadcrumbsAndActions($data);
         $data['errors'] = $this->error;
         $data['header'] = $this->load->controller('common/header');
@@ -233,13 +235,17 @@ class ControllerExtensionPaymentApironeMccp extends Controller {
         $version = $this->model_setting_setting->getSettingValue('payment_apirone_mccp_version');
         if ($version == '') {
             $this->upd_1_0_1__1_1_0();
+            $version = '1.1.0';
+        }
+        if ($version == '1.1.0') {
+            $this->upd_1_1_0__1_1_1();
+            $version = '1.1.1';
         }
 
         return;
     }
 
     private function upd_1_0_1__1_1_0() {
-        $this->load->model('setting/setting');
         $current = $this->model_setting_setting->getSetting('payment_apirone_mccp');
 
         $data = $current;
@@ -261,6 +267,13 @@ class ControllerExtensionPaymentApironeMccp extends Controller {
         unset($data['payment_apirone_mccp_status_id']);
         unset($data['payment_apirone_mccp_pending_status_id']);
         unset($data['payment_apirone_mccp_voided_status_id']);
+
+        $this->model_setting_setting->editSetting('payment_apirone_mccp', $data);
+    }
+
+    private function upd_1_1_0__1_1_1() {
+        $current = $this->model_setting_setting->getSetting('payment_apirone_mccp');
+        $current['payment_apirone_mccp_version'] = '1.1.1';
 
         $this->model_setting_setting->editSetting('payment_apirone_mccp', $data);
     }

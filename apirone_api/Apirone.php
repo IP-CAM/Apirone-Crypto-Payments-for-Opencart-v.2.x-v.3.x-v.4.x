@@ -49,7 +49,7 @@ class Apirone {
     public static function currencyList () {
         $result = self::serviceInfo();
         if ($result == false)
-            return false;
+            return array();
 
         $currencies = $result->currencies;
 

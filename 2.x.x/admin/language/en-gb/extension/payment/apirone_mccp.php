@@ -38,6 +38,7 @@ $_['entry_testcustomer_placeholder'] = 'example.customer@example.com';
 
 // Warning
 // Error
+$_['error_service_not_available'] = 'Can\'t get list of currencies. Service unavailable. Please, try later.';
 $_['error_empty_currencies'] = 'At least one of the addresses is required.';
 $_['error_permission'] = 'Warning: You do not have permission to modify payment Apirone!';
 $_['error_apirone_mccp_timeout'] = 'The required field. Please, specify value in seconds.';

@@ -5,17 +5,11 @@ require_once(DIR_EXTENSION . 'apirone/system/library/apirone_api/Apirone.php');
 require_once(DIR_EXTENSION . 'apirone/system/library/apirone_api/Db.php');
 
 // Define Plugin version
-define ('PLUGIN_VERSION', '1.1.0');
+define ('PLUGIN_VERSION', '1.1.1');
 
 use ApironeApi\Apirone;
 use ApironeApi\Db;
 
-
-function pa($mixed) {
-    echo '<pre>';
-    print_r($mixed);
-    echo '</pre>';
-}
 
 class ApironeMccp extends \Opencart\System\Engine\Controller {
     private $error = array();
@@ -33,6 +27,7 @@ class ApironeMccp extends \Opencart\System\Engine\Controller {
 
         $errors_count = 0;
         $active_currencies = 0;
+        $currencies = array();
 
         if (!$this->user->hasPermission('modify', 'extension/apirone/payment/apirone_mccp')) {
             $data['error'] = $this->language->get('error_permission');
@@ -126,8 +121,12 @@ class ApironeMccp extends \Opencart\System\Engine\Controller {
             }
             else {
                 // No addresses
-                if ($active_currencies == 0 ) {
-                    $json['error']['warning'] = $this->language->get('error_empty_currencies');
+                if (count($currencies) == 0 ) {
+                    $json['error']['warning'] = $this->language->get('error_service_not_available');
+                } else {
+                    if ($active_currencies == 0 ) {
+                        $json['error']['warning'] = $this->language->get('error_empty_currencies');
+                    }
                 }
                 // Wrong addresses
                 foreach ($currencies as $key => $currency) {
@@ -172,9 +171,11 @@ class ApironeMccp extends \Opencart\System\Engine\Controller {
         $data['geo_zones'] = $this->model_localisation_geo_zone->getGeoZones();
 
         $data['currencies'] = $currencies;
+        // Can't get currency list
+        if (count($currencies) == 0) {
+            $data['error'] = $this->language->get('error_service_not_available');
+        }
         
-        if (($active_currencies > 0))
-            $data['error_empty_currencies'] = false;
 
         $this->getBreadcrumbsAndActions($data);
         $data['errors'] = $this->error;
@@ -266,13 +267,17 @@ class ApironeMccp extends \Opencart\System\Engine\Controller {
 
         if ($version == '') {
             $this->upd_1_0_1__1_1_0();
+            $version = '1.1.0';
+        }
+        if ($version == '1.1.0') {
+            $this->upd_1_1_0__1_1_1();
+            $version = '1.1.1';
         }
 
         return;
     }
 
-    private function upd_1_0_1__1_1_0() {
-        $this->load->model('setting/setting');
+    private function upd_1_0_1__1_1_0(): void {
         $current = $this->model_setting_setting->getSetting('payment_apirone_mccp');
 
         $data = $current;
@@ -297,4 +302,12 @@ class ApironeMccp extends \Opencart\System\Engine\Controller {
 
         $this->model_setting_setting->editSetting('payment_apirone_mccp', $data);
     }
+
+    private function upd_1_1_0__1_1_1() {
+        $data = $this->model_setting_setting->getSetting('payment_apirone_mccp');
+        $data['payment_apirone_mccp_version'] = '1.1.1';
+
+        $this->model_setting_setting->editSetting('payment_apirone_mccp', $data);
+    }
+
 }
