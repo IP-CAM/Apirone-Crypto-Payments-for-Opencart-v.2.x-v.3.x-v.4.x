@@ -5,7 +5,7 @@ require_once(DIR_EXTENSION . 'apirone/system/library/apirone_api/Apirone.php');
 require_once(DIR_EXTENSION . 'apirone/system/library/apirone_api/Db.php');
 
 // Define Plugin version
-define ('PLUGIN_VERSION', '1.1.1');
+define ('PLUGIN_VERSION', '1.1.2');
 
 use ApironeApi\Apirone;
 use ApironeApi\Db;
@@ -257,8 +257,8 @@ class ApironeMccp extends \Opencart\System\Engine\Controller {
         $this->load->model('setting/setting');
         $this->model_setting_setting->deleteSetting('payment_apirone_mccp');
 
-        $query = \ApironeApi\Db::deleteInvoicesTableQuery(DB_PREFIX);
-        $this->model_extension_apirone_payment_apirone_mccp->delete_invoices_table($query);
+        // $query = \ApironeApi\Db::deleteInvoicesTableQuery(DB_PREFIX);
+        // $this->model_extension_apirone_payment_apirone_mccp->delete_invoices_table($query);
     }
 
     private function update(): void {

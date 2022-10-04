@@ -5,7 +5,7 @@ use ApironeApi\Apirone;
 require_once(DIR_SYSTEM . 'library/apirone_api/Apirone.php');
 
 // Define Plugin version
-define ('PLUGIN_VERSION', '1.1.1');
+define ('PLUGIN_VERSION', '1.1.2');
 
 class ControllerExtensionPaymentApironeMccp extends Controller {
     private $error = array();
@@ -226,8 +226,8 @@ class ControllerExtensionPaymentApironeMccp extends Controller {
         $this->load->model('setting/setting');
         $this->model_setting_setting->deleteSetting('payment_apirone_mccp');
 
-        $query = ApironeApi\Db::deleteInvoicesTableQuery(DB_PREFIX);
-        $this->model_extension_payment_apirone_mccp->delete_invoices_table($query);
+        // $query = ApironeApi\Db::deleteInvoicesTableQuery(DB_PREFIX);
+        // $this->model_extension_payment_apirone_mccp->delete_invoices_table($query);
     }
 
     private function update() {
