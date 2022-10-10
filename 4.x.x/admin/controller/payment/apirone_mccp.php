@@ -5,7 +5,7 @@ require_once(DIR_EXTENSION . 'apirone/system/library/apirone_api/Apirone.php');
 require_once(DIR_EXTENSION . 'apirone/system/library/apirone_api/Db.php');
 
 // Define Plugin version
-define ('PLUGIN_VERSION', '1.1.2');
+define ('PLUGIN_VERSION', '1.1.3');
 
 use ApironeApi\Apirone;
 use ApironeApi\Db;
@@ -266,18 +266,31 @@ class ApironeMccp extends \Opencart\System\Engine\Controller {
         $version = $this->model_setting_setting->getValue('payment_apirone_mccp_version');
 
         if ($version == '') {
-            $this->upd_1_0_1__1_1_0();
-            $version = '1.1.0';
+            $version = $this->upd_1_0_1__1_1_0();
         }
         if ($version == '1.1.0') {
-            $this->upd_1_1_0__1_1_1();
-            $version = '1.1.1';
+            $version = $this->upd_version('1.1.1');
+        }
+        if ($version == '1.1.1') {
+            $version = $this->upd_version('1.1.2');
+        }
+        if ($version == '1.1.2') {
+            $version = $this->upd_version('1.1.3');
         }
 
         return;
     }
 
-    private function upd_1_0_1__1_1_0(): void {
+    private function upd_version($version): string {
+        $current = $this->model_setting_setting->getSetting('payment_apirone_mccp');
+        $current['payment_apirone_mccp_version'] = $version;
+
+        $this->model_setting_setting->editSetting('payment_apirone_mccp', $current);
+
+        return $version;
+    }
+
+    private function upd_1_0_1__1_1_0(): string {
         $current = $this->model_setting_setting->getSetting('payment_apirone_mccp');
 
         $data = $current;
@@ -301,13 +314,7 @@ class ApironeMccp extends \Opencart\System\Engine\Controller {
         unset($data['payment_apirone_mccp_voided_status_id']);
 
         $this->model_setting_setting->editSetting('payment_apirone_mccp', $data);
+
+        return $data['payment_apirone_mccp_version'];
     }
-
-    private function upd_1_1_0__1_1_1() {
-        $data = $this->model_setting_setting->getSetting('payment_apirone_mccp');
-        $data['payment_apirone_mccp_version'] = '1.1.1';
-
-        $this->model_setting_setting->editSetting('payment_apirone_mccp', $data);
-    }
-
 }

@@ -5,7 +5,7 @@ use ApironeApi\Apirone;
 require_once(DIR_SYSTEM . 'library/apirone_api/Apirone.php');
 
 // Define Plugin version
-define ('PLUGIN_VERSION', '1.1.2');
+define ('PLUGIN_VERSION', '1.1.3');
 
 class ControllerExtensionPaymentApironeMccp extends Controller {
     private $error = array();
@@ -234,15 +234,28 @@ class ControllerExtensionPaymentApironeMccp extends Controller {
         $this->load->model('setting/setting');
         $version = $this->model_setting_setting->getSettingValue('payment_apirone_mccp_version');
         if ($version == '') {
-            $this->upd_1_0_1__1_1_0();
-            $version = '1.1.0';
+            $version = $this->upd_1_0_1__1_1_0();
         }
         if ($version == '1.1.0') {
-            $this->upd_1_1_0__1_1_1();
-            $version = '1.1.1';
+            $version = $this->upd_version('1.1.1');
+        }
+        if ($version == '1.1.1') {
+            $version = $this->upd_version('1.1.2');
+        }
+        if ($version == '1.1.2') {
+            $version = $this->upd_version('1.1.3');
         }
 
         return;
+    }
+
+    private function upd_version($version) {
+        $current = $this->model_setting_setting->getSetting('payment_apirone_mccp');
+        $current['payment_apirone_mccp_version'] = $version;
+
+        $this->model_setting_setting->editSetting('payment_apirone_mccp', $current);
+
+        return $version;
     }
 
     private function upd_1_0_1__1_1_0() {
@@ -269,12 +282,8 @@ class ControllerExtensionPaymentApironeMccp extends Controller {
         unset($data['payment_apirone_mccp_voided_status_id']);
 
         $this->model_setting_setting->editSetting('payment_apirone_mccp', $data);
+
+        return $data['payment_apirone_mccp_version'];
     }
 
-    private function upd_1_1_0__1_1_1() {
-        $current = $this->model_setting_setting->getSetting('payment_apirone_mccp');
-        $current['payment_apirone_mccp_version'] = '1.1.1';
-
-        $this->model_setting_setting->editSetting('payment_apirone_mccp', $data);
-    }
 }
