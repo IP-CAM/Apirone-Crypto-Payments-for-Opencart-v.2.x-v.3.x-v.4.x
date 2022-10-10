@@ -25,7 +25,7 @@ class ApironeMccp extends \Opencart\System\Engine\Controller {
         $account = unserialize($this->config->get('payment_apirone_mccp_account'))->account;
         $showTestnet = $this->model_extension_apirone_payment_apirone_mccp->showTestnet();
 
-        $data['coins'] = Payment::getCoins($account, $order['total'], $order['currency_code'], $showTestnet);
+        $data['coins'] = Payment::getCoins($account, $order['total'] * $order['currency_value'], $order['currency_code'], $showTestnet);
         $data['order_id'] = $order['order_id'];
         $data['order_key'] = Payment::makeInvoiceSecret( $this->config->get('payment_apirone_mccp_secret'), $order['total'] . $order['date_added']);
         $data['url_redirect'] = $this->url->link('extension/apirone/payment/apirone_mccp|confirm');

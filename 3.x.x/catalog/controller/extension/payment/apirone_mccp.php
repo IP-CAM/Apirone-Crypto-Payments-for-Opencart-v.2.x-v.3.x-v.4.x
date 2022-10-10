@@ -19,7 +19,7 @@ class ControllerExtensionPaymentApironeMccp extends Controller {
         $account = unserialize($this->config->get('payment_apirone_mccp_account'))->account;
         $showTestnet = $this->model_extension_payment_apirone_mccp->showTestnet();
 
-        $data['coins'] = Payment::getCoins($account, $order['total'], $order['currency_code'], $showTestnet);
+        $data['coins'] = Payment::getCoins($account, $order['total'] * $order['currency_value'], $order['currency_code'], $showTestnet);
         $data['order_id'] = $order['order_id'];
         $data['order_key'] = Payment::makeInvoiceSecret( $this->config->get('payment_apirone_mccp_secret'), $order['total']);
         $data['url_redirect'] = $this->url->link('extension/payment/apirone_mccp/confirm');
