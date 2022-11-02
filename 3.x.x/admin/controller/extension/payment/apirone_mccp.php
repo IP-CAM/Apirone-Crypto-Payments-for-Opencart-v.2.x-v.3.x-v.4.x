@@ -5,7 +5,7 @@ use ApironeApi\Apirone;
 require_once(DIR_SYSTEM . 'library/apirone_api/Apirone.php');
 
 // Define Plugin version
-define ('PLUGIN_VERSION', '1.1.3');
+define ('PLUGIN_VERSION', '1.1.4');
 
 class ControllerExtensionPaymentApironeMccp extends Controller {
     private $error = array();
@@ -244,6 +244,9 @@ class ControllerExtensionPaymentApironeMccp extends Controller {
         }
         if ($version == '1.1.2') {
             $version = $this->upd_version('1.1.3');
+        }
+        if ($version == '1.1.3') {
+            $version = $this->upd_version('1.1.4');
         }
 
         return;

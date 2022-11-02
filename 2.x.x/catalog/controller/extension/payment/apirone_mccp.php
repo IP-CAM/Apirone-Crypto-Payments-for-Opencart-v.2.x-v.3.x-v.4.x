@@ -65,7 +65,7 @@ class ControllerExtensionPaymentApironeMccp extends Controller {
             return;
         }
 
-        $totalCrypto = Payment::fiat2crypto($order['total'], $order['currency_code'], $currency);
+        $totalCrypto = Payment::fiat2crypto($order['total'] * $order['currency_value'], $order['currency_code'], $currency);
         $amount = (int) Payment::cur2min($totalCrypto, $currencyInfo->{'units-factor'});
 
         $lifetime = (int) $this->config->get('apirone_mccp_timeout');
