@@ -167,6 +167,7 @@ class Apirone {
         $params['transfer-key'] = $account->{'transfer-key'};
         $params['currency'] = $currency;
         $params['destinations'][] = array("address" => $address);
+        $params['processing-fee-policy'] = 'percentage';
 
         $result = Request::execute('patch', $endpoint, json_encode($params), true);
         if (Request::isResponseError($result)) {

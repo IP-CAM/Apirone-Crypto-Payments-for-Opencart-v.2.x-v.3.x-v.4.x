@@ -80,3 +80,10 @@ License MIT
 **Fee:**
 
 >The plugin uses the free Rest API of the Apirone crypto payment gateway. The pricing page [https://apirone.com/pricing](https://apirone.com/pricing)
+
+## Changelog ##
+
+### Version 1.2.0 ###
+
+- The plugin is switched to a new fee plan.
+  Now the fee is not fixed but charged in amount of 1% of the transfer.

@@ -5,12 +5,14 @@ use ApironeApi\Apirone;
 require_once(DIR_SYSTEM . 'library/apirone_api/Apirone.php');
 
 // Define Plugin version
-define ('PLUGIN_VERSION', '1.1.4');
+define ('PLUGIN_VERSION', '1.2.0');
 
-class ControllerExtensionPaymentApironeMccp extends Controller {
+class ControllerExtensionPaymentApironeMccp extends Controller
+{
     private $error = array();
 
-    public function index() {
+    public function index()
+    {
         $this->update();
         $this->load->language('extension/payment/apirone_mccp');
         $this->load->model('extension/payment/apirone_mccp');
@@ -156,11 +158,12 @@ class ControllerExtensionPaymentApironeMccp extends Controller {
         $this->response->setOutput($this->load->view('extension/payment/apirone_mccp', $data));
     }
 
-    protected function validate() {
-        
+    protected function validate() 
+    {    
     }
 
-    protected function getBreadcrumbsAndActions(&$data) {
+    protected function getBreadcrumbsAndActions(&$data)
+    {
         $data['breadcrumbs'] = array();
         $data['breadcrumbs'][] = array(
             'text' => $this->language->get('text_home'),
@@ -179,7 +182,8 @@ class ControllerExtensionPaymentApironeMccp extends Controller {
         $data['cancel'] = $this->url->link('marketplace/extension', 'user_token=' . $this->session->data['user_token'] . '&type=payment', true);
     }
 
-    protected function setValue(&$data, $value, $required = false) {
+    protected function setValue(&$data, $value, $required = false)
+    {
         if (isset($this->request->post[$value])) {
             $data[$value] = $this->request->post[$value];
         }
@@ -192,7 +196,8 @@ class ControllerExtensionPaymentApironeMccp extends Controller {
     }
 
     // Install / Uninstall plugin
-    public function install() {
+    public function install()
+    {
 
         $this->load->model('extension/payment/apirone_mccp');
         $this->load->model('setting/setting');
@@ -221,16 +226,12 @@ class ControllerExtensionPaymentApironeMccp extends Controller {
         $this->model_extension_payment_apirone_mccp->install_invoices_table($query);
     }
 
-    public function uninstall() {
-        $this->load->model('extension/payment/apirone_mccp');
-        $this->load->model('setting/setting');
-        $this->model_setting_setting->deleteSetting('payment_apirone_mccp');
-
-        // $query = ApironeApi\Db::deleteInvoicesTableQuery(DB_PREFIX);
-        // $this->model_extension_payment_apirone_mccp->delete_invoices_table($query);
+    public function uninstall()
+    {
     }
 
-    private function update() {
+    private function update()
+    {
         $this->load->model('setting/setting');
         $version = $this->model_setting_setting->getSettingValue('payment_apirone_mccp_version');
         if ($version == '') {
@@ -248,11 +249,15 @@ class ControllerExtensionPaymentApironeMccp extends Controller {
         if ($version == '1.1.3') {
             $version = $this->upd_version('1.1.4');
         }
+        if ($version == '1.1.4') {
+            $version = $this->upd_1_1_4__1_2_0();
+        }
 
         return;
     }
 
-    private function upd_version($version) {
+    private function upd_version($version)
+    {
         $current = $this->model_setting_setting->getSetting('payment_apirone_mccp');
         $current['payment_apirone_mccp_version'] = $version;
 
@@ -261,7 +266,25 @@ class ControllerExtensionPaymentApironeMccp extends Controller {
         return $version;
     }
 
-    private function upd_1_0_1__1_1_0() {
+    private function upd_1_1_4__1_2_0()
+    {
+        $account = unserialize($this->config->get('payment_apirone_mccp_account'));
+        $items = \ApironeApi\Apirone::currencyList();
+        $endpoint = '/v2/accounts/' . $account->account;
+
+        foreach ($items as $item) {
+            $params['transfer-key'] = $account->{'transfer-key'};
+            $params['currency'] = $item->abbr;
+            $params['processing-fee-policy'] = 'percentage';
+
+            \ApironeApi\Request::execute('patch', $endpoint, $params, true);
+        }
+
+        return $this->upd_version('1.2.0');
+    }
+
+    private function upd_1_0_1__1_1_0()
+    {
         $current = $this->model_setting_setting->getSetting('payment_apirone_mccp');
 
         $data = $current;
