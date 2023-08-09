@@ -78,7 +78,7 @@ trait Utils {
     }
 
     /**
-     * Convert fiat value to cripto by request to apirone api
+     * Convert fiat value to crypto by request to apirone api
      * 
      * @param mixed $value 
      * @param string $from 
@@ -86,7 +86,9 @@ trait Utils {
      * @return mixed 
      */
     static public function fiat2crypto($value, $from='usd', $to = 'btc') {
-        if ($from == 'btc') {
+        $from = strtolower(trim($from));
+        $to = strtolower(trim($to));
+        if ($from == $to) {
             return $value;
         }
 

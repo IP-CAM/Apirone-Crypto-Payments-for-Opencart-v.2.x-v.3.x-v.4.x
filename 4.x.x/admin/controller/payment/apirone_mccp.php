@@ -5,7 +5,7 @@ require_once(DIR_EXTENSION . 'apirone/system/library/apirone_api/Apirone.php');
 require_once(DIR_EXTENSION . 'apirone/system/library/apirone_api/Db.php');
 
 // Define Plugin version
-define ('PLUGIN_VERSION', '1.2.0');
+define ('PLUGIN_VERSION', '1.2.1');
 
 
 class ApironeMccp extends \Opencart\System\Engine\Controller
@@ -279,6 +279,9 @@ class ApironeMccp extends \Opencart\System\Engine\Controller
         }
         if ($version == '1.1.4') {
             $version = $this->upd_1_1_4__1_2_0();
+        }
+        if ($version == '1.2.0') {
+            $version = $this->upd_version('1.2.1');
         }
 
         return;

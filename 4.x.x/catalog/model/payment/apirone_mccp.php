@@ -5,57 +5,121 @@ namespace Opencart\Catalog\Model\Extension\Apirone\Payment;
 require_once(DIR_EXTENSION . 'apirone/system/library/apirone_api/Db.php');
 
 use ApironeApi\Db;
-class ApironeMccp extends \Opencart\System\Engine\Model {
 
-    public function getMethod($address) {
-        $this->load->language('extension/apirone/payment/apirone_mccp');
-        $status = false;
-        $method_data = array();
+class ApironeMccp extends \Opencart\System\Engine\Model
+{
+    /**
+     * getMethod
+     *
+     * Before 4.0.2.0
+     * @param array $address
+     * @return array
+     */
+    public function getMethod(array $address): array
+    {
+        $method_data = [];
 
         $activeCurrencies = $this->getActiveCurrencies();
-        
-        if ($activeCurrencies) {
-            $geozone = $this->db->query("SELECT * FROM " . DB_PREFIX . "zone_to_geo_zone WHERE geo_zone_id = '" 
-                . (int)$this->config->get('apirone_mccp_geo_zone_id') 
-                . "' AND country_id = '" . (int)$address['country_id'] . "' AND (zone_id = '" . (int)$address['zone_id'] . "' OR zone_id = '0')");
 
-            if (!$this->config->get('apirone_geo_zone_id') || $geozone->num_rows) {
+        if ($activeCurrencies && $this->config->get('payment_apirone_mccp_status')) {
+            $this->load->language('extension/apirone/payment/apirone_mccp');
+
+            $query = $this->db->query("SELECT * FROM " . DB_PREFIX . "zone_to_geo_zone WHERE geo_zone_id = '" . (int)$this->config->get('payment_apirone_mccp_geo_zone_id') . "' AND country_id = '" . (int)$address['country_id'] . "' AND (zone_id = '" . (int)$address['zone_id'] . "' OR zone_id = '0')");
+
+            if ($this->cart->hasSubscription()) {
+                $status = false;
+            } elseif (!$this->config->get('payment_apirone_geo_zone_id')) {
                 $status = true;
+            } elseif ($query->num_rows) {
+                $status = true;
+            } else {
+                $status = false;
+            }
+
+            if ($status) {
+                $currencies = '';
+                foreach ($activeCurrencies as $item) {
+                    $currencies .= $item->name . ', ';
+                }
+                $currencies = substr($currencies, 0, -2);
+
+                $method_data = array(
+                    'code'       => 'apirone_mccp',
+                    'title'      => $this->language->get('text_title'),
+                    'sort_order' => $this->config->get('payment_apirone_mccp_sort_order')
+                );
             }
         }
 
-        if ($status) {
-            $currencies = '';
-            foreach ($activeCurrencies as $item) {
-                $currencies .= $item->name . ', ';
-            }
-            $currencies = substr($currencies, 0, -2);
+        return $method_data;
+    }
+    /**
+     * getMethods
+     *
+     * Since 4.0.2.0
+     * @param  mixed $address
+     * @return array
+     */
+    public function getMethods(array $address = []): array
+    {
 
-            $method_data = array(
+        // loading example payment language
+        $this->load->language('extension/apirone/payment/apirone_mccp');
+
+        if ($this->cart->hasSubscription()) {
+            $status = false;
+        } elseif (!$this->cart->hasShipping()) {
+            $status = false;
+        } elseif (!$this->config->get('config_checkout_payment_address')) {
+            $status = true;
+        } elseif (!$this->config->get('payment_apirone_mccp_geo_zone_id')) {
+            $status = true;
+        } else {
+            // getting payment data using zeo zone
+            $query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "zone_to_geo_zone` WHERE `geo_zone_id` = '" . (int)$this->config->get('payment_apirone_mccp_geo_zone_id') . "' AND `country_id` = '" . (int)$address['country_id'] . "' AND (`zone_id` = '" . (int)$address['zone_id'] . "' OR `zone_id` = '0')");
+
+            // if the rows found the status set to True
+            if ($query->num_rows) {
+                $status = true;
+            } else {
+                $status = false;
+            }
+        }
+
+        $method_data = [];
+
+        if ($status) {
+            $option_data['apirone_mccp'] = [
+                'code' => 'apirone_mccp.apirone_mccp',
+                'name' => $this->language->get('text_title')
+            ];
+
+            $method_data = [
                 'code'       => 'apirone_mccp',
-                'title'      => $this->language->get('text_title'),
-                'terms'      => '',
+                'name'       => $this->language->get('text_title'),
+                'option'     => $option_data,
                 'sort_order' => $this->config->get('payment_apirone_mccp_sort_order')
-            );  
+            ];
         }
 
         return $method_data;
     }
 
-    public function getInvoiceByOrderId($order_id) {
+    public function getInvoiceByOrderId($order_id)
+    {
         $result = $this->db->query(\ApironeApi\Db::getOrderInvoiceQuery($order_id, DB_PREFIX));
         if ($result->num_rows) {
             $invoice = $result->rows[0];
             $invoice['details'] = json_decode($invoice['details']);
 
             return json_decode(json_encode($invoice));
-        }
-        else {
+        } else {
             return false;
         }
     }
 
-    public function getInvoiceById($invoice_id) {
+    public function getInvoiceById($invoice_id)
+    {
         $result = $this->db->query(\ApironeApi\Db::getInvoiceQuery($invoice_id, DB_PREFIX));
 
         if ($result->num_rows) {
@@ -63,13 +127,13 @@ class ApironeMccp extends \Opencart\System\Engine\Model {
             $invoice['details'] = json_decode($invoice['details']);
 
             return json_decode(json_encode($invoice));
-        }
-        else {
+        } else {
             return false;
         }
     }
 
-    public function updateInvoice($order_id, $objInvoice) {
+    public function updateInvoice($order_id, $objInvoice)
+    {
         $this->load->model('checkout/order');
 
         $params = array();
@@ -82,8 +146,7 @@ class ApironeMccp extends \Opencart\System\Engine\Model {
             $params['details'] = $objInvoice;
 
             $result = $this->db->query(\ApironeApi\Db::updateInvoiceQuery($params, DB_PREFIX));
-        }
-        else {
+        } else {
             // Do insert
             $params['order_id'] = $order_id;
             $params['account'] = $objInvoice->account;
@@ -98,31 +161,33 @@ class ApironeMccp extends \Opencart\System\Engine\Model {
             $this->updateOrderStatus($savedInvoice);
 
             return $savedInvoice;
-        }
-        else {
+        } else {
             return false;
         }
 
     }
 
-    public function getActiveCurrencies() {
+    public function getActiveCurrencies(): array
+    {
         $currencies = unserialize($this->config->get('payment_apirone_mccp_currencies'));
         $showTestnet = $this->showTestnet();
         $showTestnet = true;
-        $activeCurrencies = array();
+        $activeCurrencies = [];
 
         foreach ($currencies as $item) {
             if ($item->testnet == 1 && $showTestnet == false) {
                 continue;
             }
-            if (!empty($item->address))
+            if (!empty($item->address)) {
                 $activeCurrencies[] = $item;
+            }
         }
 
         return $activeCurrencies;
     }
 
-    public function showTestnet() {
+    public function showTestnet()
+    {
         $this->load->model('account/customer');
 
         if (!$this->customer->isLogged()) {
@@ -134,7 +199,8 @@ class ApironeMccp extends \Opencart\System\Engine\Model {
         return ($testcustomer == $email) ? true : false;
     }
 
-    private function updateOrderStatus($invoice) {
+    private function updateOrderStatus($invoice)
+    {
 
         $orderHistory = $this->db->query("SELECT * FROM " . DB_PREFIX . "order_history WHERE `order_id` = " . (int) $invoice->order_id);
         $invoiceHistory = $invoice->details->history;
@@ -152,7 +218,8 @@ class ApironeMccp extends \Opencart\System\Engine\Model {
         }
     }
 
-    private function _isHistoryRecordExists($comment, $history) {
+    private function _isHistoryRecordExists($comment, $history)
+    {
         foreach ($history->rows as $row) {
             if ($row['comment'] == $comment) {
                 return true;
@@ -161,8 +228,9 @@ class ApironeMccp extends \Opencart\System\Engine\Model {
         return false;
     }
 
-    private function _historyRecordComment($address, $item) {
-        
+    private function _historyRecordComment($address, $item)
+    {
+
         switch ($item->status) {
             case 'created':
                 $comment = 'Invoice ' . $item->status . '. Payment address: ' . $address;
