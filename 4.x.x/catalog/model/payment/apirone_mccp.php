@@ -26,9 +26,7 @@ class ApironeMccp extends \Opencart\System\Engine\Model
 
             $query = $this->db->query("SELECT * FROM " . DB_PREFIX . "zone_to_geo_zone WHERE geo_zone_id = '" . (int)$this->config->get('payment_apirone_mccp_geo_zone_id') . "' AND country_id = '" . (int)$address['country_id'] . "' AND (zone_id = '" . (int)$address['zone_id'] . "' OR zone_id = '0')");
 
-            if ($this->cart->hasSubscription()) {
-                $status = false;
-            } elseif (!$this->config->get('payment_apirone_geo_zone_id')) {
+            if (!$this->config->get('payment_apirone_geo_zone_id')) {
                 $status = true;
             } elseif ($query->num_rows) {
                 $status = true;
@@ -62,23 +60,15 @@ class ApironeMccp extends \Opencart\System\Engine\Model
      */
     public function getMethods(array $address = []): array
     {
-
-        // loading example payment language
         $this->load->language('extension/apirone/payment/apirone_mccp');
 
-        if ($this->cart->hasSubscription()) {
-            $status = false;
-        } elseif (!$this->cart->hasShipping()) {
-            $status = false;
-        } elseif (!$this->config->get('config_checkout_payment_address')) {
+        if (!$this->config->get('config_checkout_payment_address')) {
             $status = true;
         } elseif (!$this->config->get('payment_apirone_mccp_geo_zone_id')) {
             $status = true;
         } else {
-            // getting payment data using zeo zone
             $query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "zone_to_geo_zone` WHERE `geo_zone_id` = '" . (int)$this->config->get('payment_apirone_mccp_geo_zone_id') . "' AND `country_id` = '" . (int)$address['country_id'] . "' AND (`zone_id` = '" . (int)$address['zone_id'] . "' OR `zone_id` = '0')");
 
-            // if the rows found the status set to True
             if ($query->num_rows) {
                 $status = true;
             } else {
