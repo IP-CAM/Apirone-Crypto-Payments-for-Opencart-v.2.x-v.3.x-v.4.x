@@ -5,7 +5,7 @@ use ApironeApi\Apirone;
 require_once(DIR_SYSTEM . 'library/apirone_api/Apirone.php');
 
 // Define Plugin version
-define ('PLUGIN_VERSION', '1.2.1');
+define('PLUGIN_VERSION', '1.2.2');
 
 class ControllerExtensionPaymentApironeMccp extends Controller
 {
@@ -17,11 +17,11 @@ class ControllerExtensionPaymentApironeMccp extends Controller
         $this->load->language('extension/payment/apirone_mccp');
         $this->load->model('extension/payment/apirone_mccp');
 
-        $account = unserialize( $this->config->get('payment_apirone_mccp_account') );
+        $account = unserialize($this->config->get('payment_apirone_mccp_account'));
         $secret = $this->config->get('payment_apirone_mccp_secret');
 
         $apirone_currencies = Apirone::currencyList();
-        $plugin_currencies = unserialize( $this->config->get('payment_apirone_mccp_currencies') );
+        $plugin_currencies = unserialize($this->config->get('payment_apirone_mccp_currencies'));
 
         $errors_count = 0;
         $active_currencies = 0;
@@ -43,25 +43,25 @@ class ControllerExtensionPaymentApironeMccp extends Controller
             $currency->currency_tooltip = sprintf($this->language->get('currency_activate_tooltip'), $item->name);
             $currency->testnet = $item->testnet;
 
-            // Set address from config 
+            // Set address from config
             if ($plugin_currencies) {
                 $currency->address = $plugin_currencies[$item->abbr]->address;
             }
-            // Set address from config 
+            // Set address from config
             if ($this->request->server['REQUEST_METHOD'] == 'POST') {
                 $currency->address = $_POST['payment_address'][$item->abbr];
                 if ($currency->address != '') {
                     $result = Apirone::setTransferAddress($account, $item->abbr, $currency->address);
-                        if ($result == false) {
+                    if ($result == false) {
                         $currency->error = 1;
                         $errors_count++;
                     }
                 }
             }
             // Set tooltip
-            if (empty($currency->address))
+            if (empty($currency->address)) {
                 $currency->currency_tooltip = sprintf($this->language->get('currency_activate_tooltip'), $item->name);
-            else {
+            } else {
                 $currency->currency_tooltip = sprintf($this->language->get('currency_deactivate_tooltip'), $item->name);
                 $active_currencies++;
             }
@@ -85,7 +85,7 @@ class ControllerExtensionPaymentApironeMccp extends Controller
         $this->setValue($data, 'payment_apirone_mccp_testcustomer');
 
         if ($active_currencies == 0 || $data['payment_apirone_mccp_timeout'] <= 0 || count($currencies) == 0) {
-            $errors_count++;            
+            $errors_count++;
         }
 
         $errors_count = $errors_count + count($this->error);
@@ -114,10 +114,9 @@ class ControllerExtensionPaymentApironeMccp extends Controller
 
                 $this->model_setting_setting->editSetting('payment_apirone_mccp', $_settings);
                 $data['success'] = $this->language->get('text_success');
-            }
-            else {
+            } else {
                 // No addresses
-                if($active_currencies == 0 ) {
+                if($active_currencies == 0) {
                     $data['error'] = $this->language->get('error_empty_currencies');
                 }
                 // Payment timeout
@@ -148,7 +147,7 @@ class ControllerExtensionPaymentApironeMccp extends Controller
         if (count($currencies) == 0) {
             $data['error'] = $this->language->get('error_service_not_available');
         }
-        
+
         $this->getBreadcrumbsAndActions($data);
         $data['errors'] = $this->error;
         $data['header'] = $this->load->controller('common/header');
@@ -158,8 +157,8 @@ class ControllerExtensionPaymentApironeMccp extends Controller
         $this->response->setOutput($this->load->view('extension/payment/apirone_mccp', $data));
     }
 
-    protected function validate() 
-    {    
+    protected function validate()
+    {
     }
 
     protected function getBreadcrumbsAndActions(&$data)
@@ -186,8 +185,7 @@ class ControllerExtensionPaymentApironeMccp extends Controller
     {
         if (isset($this->request->post[$value])) {
             $data[$value] = $this->request->post[$value];
-        }
-        else {
+        } else {
             $data[$value] = $this->config->get($value);
         }
         if ($required && empty($data[$value])) {
@@ -255,6 +253,9 @@ class ControllerExtensionPaymentApironeMccp extends Controller
 
         if ($version == '1.2.0') {
             $version = $this->upd_version('1.2.1');
+        }
+        if ($version == '1.2.1') {
+            $version = $this->upd_version('1.2.2');
         }
 
         return;

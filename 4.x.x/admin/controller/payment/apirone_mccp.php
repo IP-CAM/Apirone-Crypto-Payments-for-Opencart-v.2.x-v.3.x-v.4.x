@@ -1,11 +1,12 @@
 <?php
+
 namespace Opencart\Admin\Controller\Extension\Apirone\Payment;
 
 require_once(DIR_EXTENSION . 'apirone/system/library/apirone_api/Apirone.php');
 require_once(DIR_EXTENSION . 'apirone/system/library/apirone_api/Db.php');
 
 // Define Plugin version
-define ('PLUGIN_VERSION', '1.2.1');
+define('PLUGIN_VERSION', '1.2.2');
 
 
 class ApironeMccp extends \Opencart\System\Engine\Controller
@@ -18,11 +19,11 @@ class ApironeMccp extends \Opencart\System\Engine\Controller
         $this->load->language('extension/apirone/payment/apirone_mccp');
         $this->load->model('extension/apirone/payment/apirone_mccp');
 
-        $account = unserialize( $this->config->get('payment_apirone_mccp_account') );
+        $account = unserialize($this->config->get('payment_apirone_mccp_account'));
         $secret = $this->config->get('payment_apirone_mccp_secret');
 
         $apirone_currencies = \ApironeApi\Apirone::currencyList();
-        $plugin_currencies = unserialize( $this->config->get('payment_apirone_mccp_currencies') );
+        $plugin_currencies = unserialize($this->config->get('payment_apirone_mccp_currencies'));
 
         $errors_count = 0;
         $active_currencies = 0;
@@ -45,25 +46,25 @@ class ApironeMccp extends \Opencart\System\Engine\Controller
             $currency->testnet = $item->testnet;
             $currency->icon = $item->icon;
 
-            // Set address from config 
+            // Set address from config
             if ($plugin_currencies) {
                 $currency->address = $plugin_currencies[$item->abbr]->address;
             }
-            // Set address from config 
+            // Set address from config
             if ($this->request->server['REQUEST_METHOD'] == 'POST') {
                 $currency->address = $_POST['address'][$item->abbr];
                 if ($currency->address != '') {
-                $result = \ApironeApi\Apirone::setTransferAddress($account, $item->abbr, $currency->address);
-                        if ($result == false) {
+                    $result = \ApironeApi\Apirone::setTransferAddress($account, $item->abbr, $currency->address);
+                    if ($result == false) {
                         $currency->error = 1;
                         $errors_count++;
                     }
                 }
             }
             // Set tooltip
-            if (empty($currency->address))
+            if (empty($currency->address)) {
                 $currency->currency_tooltip = sprintf($this->language->get('currency_activate_tooltip'), $item->name);
-            else {
+            } else {
                 $currency->currency_tooltip = sprintf($this->language->get('currency_deactivate_tooltip'), $item->name);
                 $active_currencies++;
             }
@@ -86,8 +87,8 @@ class ApironeMccp extends \Opencart\System\Engine\Controller
         $this->setValue($data, 'payment_apirone_mccp_secret');
         $this->setValue($data, 'payment_apirone_mccp_testcustomer');
 
-        if ($active_currencies == 0 || $data['payment_apirone_mccp_timeout'] <= 0 ) {
-            $errors_count++;            
+        if ($active_currencies == 0 || $data['payment_apirone_mccp_timeout'] <= 0) {
+            $errors_count++;
         }
 
         $errors_count = $errors_count + count($this->error);
@@ -97,8 +98,8 @@ class ApironeMccp extends \Opencart\System\Engine\Controller
         if (($this->request->server['REQUEST_METHOD'] == 'POST')) {
 
             $json = [];
-            if ($errors_count == 0) {   
-                $_settings['payment_apirone_mccp_account'] = PLUGIN_VERSION;         
+            if ($errors_count == 0) {
+                $_settings['payment_apirone_mccp_account'] = PLUGIN_VERSION;
                 $_settings['payment_apirone_mccp_account'] = serialize($account);
                 $_settings['payment_apirone_mccp_secret'] = $secret;
                 $_settings['payment_apirone_mccp_currencies'] = serialize($currencies);
@@ -117,13 +118,12 @@ class ApironeMccp extends \Opencart\System\Engine\Controller
                 $_settings['payment_apirone_mccp_testcustomer'] = $_POST['payment_apirone_mccp_testcustomer'];
 
                 $this->model_setting_setting->editSetting('payment_apirone_mccp', $_settings);
-            }
-            else {
+            } else {
                 // No addresses
-                if (count($currencies) == 0 ) {
+                if (count($currencies) == 0) {
                     $json['error']['warning'] = $this->language->get('error_service_not_available');
                 } else {
-                    if ($active_currencies == 0 ) {
+                    if ($active_currencies == 0) {
                         $json['error']['warning'] = $this->language->get('error_empty_currencies');
                     }
                 }
@@ -174,7 +174,7 @@ class ApironeMccp extends \Opencart\System\Engine\Controller
         if (count($currencies) == 0) {
             $data['error'] = $this->language->get('error_service_not_available');
         }
-        
+
 
         $this->getBreadcrumbsAndActions($data);
         $data['errors'] = $this->error;
@@ -185,8 +185,8 @@ class ApironeMccp extends \Opencart\System\Engine\Controller
         $this->response->setOutput($this->load->view('extension/apirone/payment/apirone_mccp', $data));
     }
 
-    protected function validate() 
-    {    
+    protected function validate()
+    {
     }
 
     protected function getBreadcrumbsAndActions(&$data)
@@ -213,8 +213,7 @@ class ApironeMccp extends \Opencart\System\Engine\Controller
     {
         if (isset($this->request->post[$value])) {
             $data[$value] = $this->request->post[$value];
-        }
-        else {
+        } else {
             $data[$value] = $this->config->get($value);
         }
         if ($required && empty($data[$value])) {
@@ -282,6 +281,9 @@ class ApironeMccp extends \Opencart\System\Engine\Controller
         }
         if ($version == '1.2.0') {
             $version = $this->upd_version('1.2.1');
+        }
+        if ($version == '1.2.1') {
+            $version = $this->upd_version('1.2.2');
         }
 
         return;
