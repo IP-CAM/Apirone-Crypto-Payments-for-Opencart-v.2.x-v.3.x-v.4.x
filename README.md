@@ -83,7 +83,15 @@ License MIT
 
 ## Changelog ##
 
+### Version 1.2.2 ###
+
+* Added the ability to pay for downloads and subscriptions
+
+### Version 1.2.1 ###
+
+* Added support opencart up to 4.0.2.2 version
+
 ### Version 1.2.0 ###
 
-- The plugin is switched to a new fee plan.
+* The plugin is switched to a new fee plan.
   Now the fee is not fixed but charged in amount of 1% of the transfer.
