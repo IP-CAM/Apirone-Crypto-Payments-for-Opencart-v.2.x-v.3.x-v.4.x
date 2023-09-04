@@ -209,7 +209,7 @@ class Payment {
             if ($showTestnet == false && $item->testnet == 1) {
                 continue;
             }
-            $item->amount = self::fiat2crypto($total, $from, $item->abbr);
+            $item->amount = self::exp2dec(self::fiat2crypto($total, $from, $item->abbr));
             $item->payable = ( $item->amount && $item->amount >= self::min2cur($item->{'dust-rate'}, $item->{'units-factor'}) ) ? 1 : 0;
             $currenciesList[] = $item;
         }

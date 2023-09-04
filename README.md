@@ -83,6 +83,10 @@ License MIT
 
 ## Changelog ##
 
+### Version 1.2.3 ###
+
+* Fixed bug with displaying small amounts in exponential format for the currency selector
+
 ### Version 1.2.2 ###
 
 * Added the ability to pay for downloads and subscriptions
