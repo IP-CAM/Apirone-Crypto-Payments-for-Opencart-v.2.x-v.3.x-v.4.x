@@ -31,7 +31,7 @@
                 <h3 class="panel-title"><i class="fa fa-pencil"></i> <?php echo $text_edit; ?> (<?php echo $text_plugin_version . ' ' . $apirone_mccp_version; ?>)</h3>
             </div>
             <div class="panel-body">
-                <form action="<?php echo $action; ?>" method="post" enctype="multipart/form-data" id="form-apirone" class="form-horizontal">
+                <form action="<?php echo $action; ?>" method="post" id="form-apirone" class="form-horizontal">
 
                     <div class="form-group">
                         <label class="col-sm-2 control-label" for="input-sort-order"><?php echo $entry_merchantname; ?></label>

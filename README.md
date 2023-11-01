@@ -83,6 +83,10 @@ License MIT
 
 ## Changelog ##
 
+### Version 1.2.4 ###
+
+* Fixed bug with unsaved settings for Opencart version 4.0.2.3
+
 ### Version 1.2.3 ###
 
 * Fixed bug with displaying small amounts in exponential format for the currency selector
