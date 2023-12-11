@@ -53,12 +53,12 @@ class ApironeMccp extends \Opencart\System\Engine\Controller
             // Set address from config
             if ($this->request->server['REQUEST_METHOD'] == 'POST') {
                 $currency->address = $_POST['address'][$item->abbr];
-                if ($currency->address != '') {
-                    $result = \ApironeApi\Apirone::setTransferAddress($account, $item->abbr, $currency->address);
-                    if ($result == false) {
-                        $currency->error = 1;
-                        $errors_count++;
-                    }
+                $processing_fee = $_POST['payment_apirone_mccp_processing_fee'];
+                $address = ($currency->address) ?? null;
+                $result = \ApironeApi\Apirone::setTransferAddress($account, $item->abbr, $address, $processing_fee);
+                if ($result == false) {
+                    $currency->error = 1;
+                    $errors_count++;
                 }
             }
             // Set tooltip
@@ -86,8 +86,13 @@ class ApironeMccp extends \Opencart\System\Engine\Controller
         $this->setValue($data, 'payment_apirone_mccp_merchantname');
         $this->setValue($data, 'payment_apirone_mccp_secret');
         $this->setValue($data, 'payment_apirone_mccp_testcustomer');
+        $this->setValue($data, 'payment_apirone_mccp_processing_fee');
+        $this->setValue($data, 'payment_apirone_mccp_factor', true);
+        $data['payment_apirone_mccp_account'] = $account->account;
+        $data['phpversion'] = phpversion();
+        $data['oc_version'] = VERSION;
 
-        if ($active_currencies == 0 || $data['payment_apirone_mccp_timeout'] <= 0) {
+        if ($active_currencies == 0 || $data['payment_apirone_mccp_timeout'] <= 0 || $data['payment_apirone_mccp_factor'] <= 0  || count($currencies) == 0) {
             $errors_count++;
         }
 
@@ -99,7 +104,7 @@ class ApironeMccp extends \Opencart\System\Engine\Controller
 
             $json = [];
             if ($errors_count == 0) {
-                $_settings['payment_apirone_mccp_account'] = PLUGIN_VERSION;
+                $_settings['payment_apirone_mccp_version'] = PLUGIN_VERSION;
                 $_settings['payment_apirone_mccp_account'] = serialize($account);
                 $_settings['payment_apirone_mccp_secret'] = $secret;
                 $_settings['payment_apirone_mccp_currencies'] = serialize($currencies);
@@ -116,9 +121,12 @@ class ApironeMccp extends \Opencart\System\Engine\Controller
                 $_settings['payment_apirone_mccp_sort_order'] = $_POST['payment_apirone_mccp_sort_order'];
                 $_settings['payment_apirone_mccp_merchantname'] = $_POST['payment_apirone_mccp_merchantname'];
                 $_settings['payment_apirone_mccp_testcustomer'] = $_POST['payment_apirone_mccp_testcustomer'];
+                $_settings['payment_apirone_mccp_factor'] = $_POST['payment_apirone_mccp_factor'];
+                $_settings['payment_apirone_mccp_processing_fee'] = $_POST['payment_apirone_mccp_processing_fee'];
 
                 $this->model_setting_setting->editSetting('payment_apirone_mccp', $_settings);
-            } else {
+            }
+            else {
                 // No addresses
                 if (count($currencies) == 0) {
                     $json['error']['warning'] = $this->language->get('error_service_not_available');
@@ -139,6 +147,9 @@ class ApironeMccp extends \Opencart\System\Engine\Controller
                 }
                 if($data['payment_apirone_mccp_timeout'] <= 0) {
                     $json['error']['timeout'] = $this->language->get('error_apirone_mccp_timeout_positive');
+                }
+                if($data['payment_apirone_mccp_factor'] <= 0 || empty($data['payment_apirone_mccp_factor'])) {
+                    $this->error['payment_apirone_mccp_factor'] = $this->language->get('error_apirone_mccp_factor');
                 }
             }
 

@@ -21,169 +21,245 @@
 		</div>
 		{% endif %}
         <div class="card">
-			<div class="card-header"><i class="fas fa-pencil-alt"></i> {{ text_edit }} ({{ text_plugin_version }} {{payment_apirone_mccp_version }})</div>
+			<div class="card-header"><i class="fas fa-pencil-alt"></i> {{ text_edit }}</div>
             <div class="card-body">
                 <form action="{{ save }}" method="post" id="form-apirone" class="form-horizontal"  data-oc-toggle="ajax">
+                    <ul class="nav nav-tabs">
+                        <li class="nav-item" role="presentatin">
+                            <a href="#tab-settings" data-bs-toggle="tab" class="nav-link active" aria-selected="true" role="tab"><i class="fa fa-cog"></i> {{ tab_settings }}</a>
+                        </li>
+                        <li class="nav-item" role="presentatin">
+                            <a href="#tab-currencies" data-bs-toggle="tab" class="nav-link" aria-selected="true" role="tab"><i class="fa-solid fa-bitcoin-sign"></i> {{ tab_currencies }}</a>
+                        </li>
+                        <li class="nav-item" role="presentatin">
+                            <a href="#tab-statuses" data-bs-toggle="tab" class="nav-link" aria-selected="true" role="tab"><i class="fa fa-check"></i> {{ tab_statuses }}</a>
+                        </li>
+                        <li class="nav-item" role="presentatin">
+                            <a href="#tab-info" data-bs-toggle="tab" class="nav-link" aria-selected="true" role="tab"><i class="fa fa-info-circle"></i> {{ tab_info }}</a>
+                        </li>
+                    </ul>
+                    <div class="tab-content">
+                        <div id="tab-settings" class="tab-pane active" role="tabpanel">
+                            <div class="row mb-3">
+                                <label class="col-sm-2 col-form-label" for="input-sort-order">{{ entry_merchantname }}</label>
+                                <div class="col-sm-10">
+                                    <input type="text" name="payment_apirone_mccp_merchantname" value="{{ payment_apirone_mccp_merchantname }}" placeholder="{{ entry_merchantname }}" id="input-merchantname" class="form-control" />
+                                </div>
+                            </div>
 
-                    <div class="row mb-3">
-                        <label class="col-sm-2 col-form-label" for="input-sort-order">{{ entry_merchantname }}</label>
-                        <div class="col-sm-10">
-                            <input type="text" name="payment_apirone_mccp_merchantname" value="{{ payment_apirone_mccp_merchantname }}" placeholder="{{ entry_merchantname }}" id="input-merchantname" class="form-control" />
-                        </div>
-                    </div>
+                            <div class="row mb-3">
+                                <label class="col-sm-2 col-form-label" for="input-testcustomer">{{ entry_testcustomer }}</label>
+                                <div class="col-sm-10">
+                                    <input type="email" name="payment_apirone_mccp_testcustomer" value="{{ payment_apirone_mccp_testcustomer }}" placeholder="{{ entry_testcustomer_placeholder }}" id="input-testcustomer" class="form-control" />
+                                    <label class="contorl-label">{{ text_test_currency_customer }}</label>
+                                </div>
+                            </div>
 
-                {% for currency in currencies %}
-                    <div class="row mb-3{{ error_empty_currencies ? ' has-error' : '' }}">
-                        <label class="col-sm-2 col-form-label" for="input-merchant"><span data-bs-toggle="tooltip" data-bs-original-title="{{ currency.currency_tooltip | raw }}"><img src="{{ currency.icon }}" width="16" alt="" title=""/> {{ currency.name }}</span></label>
-                        <div class="col-sm-10">
-                            <input type="text" name="address[{{ currency.abbr }}]" value="{{ currency.address }}" id="address_{{ currency.abbr }}" class="form-control" />
-                            <div id="error-address-{{ currency.abbr }}" class="invalid-feedback"></div>
-                            {% if currency.testnet %}
-                            <label class="col-form-label" style="color: inherit !important;"><span data-bs-toggle="tooltip" data-bs-original-title="{{ text_test_currency_tooltip }}">{{ text_test_currency }}</span></label>
-                            {% endif %}
-                        </div>
-                    </div>
-                {% endfor %}
+                            <div class="row mb-3 required">
+                                <label class="col-sm-2 col-form-label" for="input-timeout">{{ entry_timeout }}</label>
+                                <div class="col-sm-10">
+                                    <input type="number" name="payment_apirone_mccp_timeout" value="{{ payment_apirone_mccp_timeout }}" placeholder="{{ entry_timeout }}" id="input-timeout" class="form-control" />
+                                    <div id="error-timeout" class="invalid-feedback"></div>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <label class="col-sm-2 col-form-label" for="input-processing-fee">{{ entry_processing_fee_policy }}</label>
+                                <div class="col-sm-10">
+                                    <select name="payment_apirone_mccp_processing_fee" id="input-processing-fee" class="form-control">
+                                        {% if payment_apirone_mccp_processing_fee == 'fixed' %}
+                                        <option value="fixed" selected="selected">{{ text_processing_fee_fixed }}</option>
+                                        {% else %}
+                                        <option value="fixed">{{ text_processing_fee_fixed }}</option>
+                                        {% endif %}
+                                        </option>
+                                        {% if payment_apirone_mccp_processing_fee == 'percentage' %}
+                                        <option value="percentage" selected="selected">{{ text_processing_fee_percentage }}</option>
+                                        {% else %}
+                                        <option value="percentage">{{ text_processing_fee_percentage }}</option>
+                                        {% endif %}
+                                        </option>
+                                    </select>
 
-                    <div class="row mb-3">
-                        <label class="col-sm-2 col-form-label" for="input-testcustomer">{{ entry_testcustomer }}</label>
-                        <div class="col-sm-10">
-                            <input type="email" name="payment_apirone_mccp_testcustomer" value="{{ payment_apirone_mccp_testcustomer }}" placeholder="{{ entry_testcustomer_placeholder }}" id="input-testcustomer" class="form-control" />
-                            <label class="contorl-label">{{ text_test_currency_customer }}</label>
+                                </div>
+                            </div>
+                            <div class="row mb-3 required">
+                                <label class="col-sm-2 col-form-label" for="input-factor">
+                                    <span data-bs-toggle="tooltip" data-bs-original-title="{{ text_factor_tooltip }}">{{ entry_factor }}</span>
+                                </label>
+                                <div class="col-sm-10">
+                                    <input type="number" min="0.01" step="0.01" name="payment_apirone_mccp_factor" value="{{ payment_apirone_mccp_factor }}" placeholder="{{ entry_factor }}" id="input-factor" class="form-control" />
+                                    <div id="error-factor" class="invalid-feedback"></div>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <label class="col-sm-2 col-form-label" for="input-geo-zone">{{ entry_geo_zone }}</label>
+                                <div class="col-sm-10">
+                                    <select name="payment_apirone_mccp_geo_zone_id" id="input-geo-zone" class="form-control">
+                                        <option value="0">{{ text_all_zones }}</option>
+                                        {% for geo_zone in geo_zones %}
+                                        {% if geo_zone.geo_zone_id == payment_apirone_mccp_geo_zone_id %}
+                                        <option value="{{ geo_zone.geo_zone_id }}" selected="selected">{{ geo_zone.name }}</option>
+                                        {% else %}
+                                        <option value="{{ geo_zone.geo_zone_id }}">{{ geo_zone.name }}</option>
+                                        {% endif %}
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <label class="col-sm-2 col-form-label" for="input-status">{{ entry_status }}</label>
+                                <div class="col-sm-10">
+                                    <select name="payment_apirone_mccp_status" id="input-status" class="form-control">
+                                        {% if payment_apirone_mccp_status %}
+                                        <option value="1" selected="selected">{{ text_enabled }}</option>
+                                        <option value="0">{{ text_disabled }}</option>
+                                        {% else %}
+                                        <option value="1">{{ text_enabled }}</option>
+                                        <option value="0" selected="selected">{{ text_disabled }}</option>
+                                        {% endif %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <label class="col-sm-2 col-form-label" for="input-sort-order">{{ entry_sort_order }}</label>
+                                <div class="col-sm-10">
+                                    <input type="text" name="payment_apirone_mccp_sort_order" value="{{ payment_apirone_mccp_sort_order }}" placeholder="{{ entry_sort_order }}" id="input-sort-order" class="form-control" />
+                                </div>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="row mb-3 required">
-                        <label class="col-sm-2 col-form-label" for="input-timeout">{{ entry_timeout }}</label>
-                        <div class="col-sm-10">
-                            <input type="number" name="payment_apirone_mccp_timeout" value="{{ payment_apirone_mccp_timeout }}" placeholder="{{ entry_timeout }}" id="input-timeout" class="form-control" />
-                            <div id="error-timeout" class="invalid-feedback"></div>
+                        <div id="tab-currencies" class="tab-pane" role="tabpanel">
+                            {% for currency in currencies %}
+                                <div class="row mb-3{{ error_empty_currencies ? ' has-error' : '' }}">
+                                    <label class="col-sm-2 col-form-label" for="input-merchant">
+                                        <span data-bs-toggle="tooltip" data-bs-original-title="{{ currency.currency_tooltip }}" class="py-1">
+                                            <img src="{{ currency.icon }}" width="24"{{ (currency.abbr == 'tbtc') ? ' style="filter: grayscale(1)"' : '' }}>&nbsp;{{ currency.name }}
+                                        </span>
+                                    </label>
+                                    <div class="col-sm-10">
+                                        <input type="text" name="address[{{ currency.abbr }}]" value="{{ currency.address }}" id="address_{{ currency.abbr }}" class="form-control" />
+                                        <div id="error-address-{{ currency.abbr }}" class="invalid-feedback"></div>
+                                        {% if currency.testnet %}
+                                        <label class="col-form-label" style="color: inherit !important;"><span data-bs-toggle="tooltip" data-bs-original-title="{{ text_test_currency_tooltip }}">{{ text_test_currency }}</span></label>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endfor %}
                         </div>
-                    </div>
+                        <div id="tab-statuses" class="tab-pane" role="tabpanel">
+                            <div class="row mb-3">
+                                <label class="col-sm-2 col-form-label" for="input-invoice-created">{{ entry_invoice_created }}</label>
+                                <div class="col-sm-10">
+                                    <select name="payment_apirone_mccp_invoice_created_status_id" id="input-invoice-created" class="form-control">
+                                        {% for order_status in order_statuses %}
+                                        {% if order_status.order_status_id == payment_apirone_mccp_invoice_created_status_id %}
+                                        <option value="{{ order_status.order_status_id }}" selected="selected">{{ order_status.name }}</option>
+                                        {% else %}
+                                        <option value="{{ order_status.order_status_id }}">{{ order_status.name }}</option>
+                                        {% endif %}
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
 
-                    <div class="row mb-3">
-                        <label class="col-sm-2 col-form-label" for="input-invoice-created">{{ entry_invoice_created }}</label>
-                        <div class="col-sm-10">
-                            <select name="payment_apirone_mccp_invoice_created_status_id" id="input-invoice-created" class="form-control">
-                                {% for order_status in order_statuses %}
-                                {% if order_status.order_status_id == payment_apirone_mccp_invoice_created_status_id %}
-                                <option value="{{ order_status.order_status_id }}" selected="selected">{{ order_status.name }}</option>
-                                {% else %}
-                                <option value="{{ order_status.order_status_id }}">{{ order_status.name }}</option>
-                                {% endif %}
-                                {% endfor %}
-                            </select>
+                            <div class="row mb-3">
+                                <label class="col-sm-2 col-form-label" for="input-invoice-paid">{{ entry_invoice_paid }}</label>
+                                <div class="col-sm-10">
+                                    <select name="payment_apirone_mccp_invoice_paid_status_id" id="input-invoice-paid" class="form-control">
+                                        {% for order_status in order_statuses %}
+                                        {% if order_status.order_status_id == payment_apirone_mccp_invoice_paid_status_id %}
+                                        <option value="{{ order_status.order_status_id }}" selected="selected">{{ order_status.name }}</option>
+                                        {% else %}
+                                        <option value="{{ order_status.order_status_id }}">{{ order_status.name }}</option>
+                                        {% endif %}
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <label class="col-sm-2 col-form-label" for="input-invoice-partpaid">{{ entry_invoice_partpaid }}</label>
+                                <div class="col-sm-10">
+                                    <select name="payment_apirone_mccp_invoice_partpaid_status_id" id="input-invoice-partpaid" class="form-control">
+                                        {% for order_status in order_statuses %}
+                                        {% if order_status.order_status_id == payment_apirone_mccp_invoice_partpaid_status_id %}
+                                        <option value="{{ order_status.order_status_id }}" selected="selected">{{ order_status.name }}</option>
+                                        {% else %}
+                                        <option value="{{ order_status.order_status_id }}">{{ order_status.name }}</option>
+                                        {% endif %}
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <label class="col-sm-2 col-form-label" for="input-invoce-overpaid">{{ entry_invoice_overpaid }}</label>
+                                <div class="col-sm-10">
+                                    <select name="payment_apirone_mccp_invoice_overpaid_status_id" id="input-invoice-overpaid" class="form-control">
+                                        {% for order_status in order_statuses %}
+                                        {% if order_status.order_status_id == payment_apirone_mccp_invoice_overpaid_status_id %}
+                                        <option value="{{ order_status.order_status_id }}" selected="selected">{{ order_status.name }}</option>
+                                        {% else %}
+                                        <option value="{{ order_status.order_status_id }}">{{ order_status.name }}</option>
+                                        {% endif %}
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <label class="col-sm-2 col-form-label" for="input-invoice-completed">{{ entry_invoice_completed }}</label>
+                                <div class="col-sm-10">
+                                    <select name="payment_apirone_mccp_invoice_completed_status_id" id="input-invoice-completed" class="form-control">
+                                        {% for order_status in order_statuses %}
+                                        {% if order_status.order_status_id == payment_apirone_mccp_invoice_completed_status_id %}
+                                        <option value="{{ order_status.order_status_id }}" selected="selected">{{ order_status.name }}</option>
+                                        {% else %}
+                                        <option value="{{ order_status.order_status_id }}">{{ order_status.name }}</option>
+                                        {% endif %}
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <label class="col-sm-2 col-form-label" for="input-invoice-expired">{{ entry_invoice_expired }}</label>
+                                <div class="col-sm-10">
+                                    <select name="payment_apirone_mccp_invoice_expired_status_id" id="input-invoice-expired" class="form-control">
+                                        {% for order_status in order_statuses %}
+                                        {% if order_status.order_status_id == payment_apirone_mccp_invoice_expired_status_id %}
+                                        <option value="{{ order_status.order_status_id }}" selected="selected">{{ order_status.name }}</option>
+                                        {% else %}
+                                        <option value="{{ order_status.order_status_id }}">{{ order_status.name }}</option>
+                                        {% endif %}
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="tab-info" class="tab-pane" role="tabpanel">
+                            <div style="padding: 1rem; margin-bottom: 1rem">
+                                <h4>{{ heading_testnet_hint }}</h4>
+                                <hr>
+                                <p>{{ text_testnet_hint }}</p>
+                                <a target="_blank" href="https://coinfaucet.eu/en/btc-testnet/?lid=apirone">Coinfaucet</a><br>
+                                <a target="_blank" href="https://bitcoinfaucet.uo1.net?lid=apirone">Bitcoinfaucet</a><br>
+                                <a target="_blank" href="https://testnet-faucet.com/btc-testnet/?lid=apirone">Testnet faucet</a><br>
+                                <a target="_blank" href="https://kuttler.eu/en/bitcoin/btc/faucet/?lid=apirone">Kuttler</a>
+                                <hr>
+                                <p class="mb-0"><strong>Read more:</strong> <a href="https://apirone.com/faq" target="_blank">https://apirone.com/faq</a></p>
+                            </div>
+                            <div class="_alert _alert-info" role="alert" style="padding: 1rem; margin-bottom: 1rem">
+                                <h4>{{ heading_plugin_info }}</h4>
+                                <hr>
+                                <p>
+                                    <strong>{{ text_apirone_account }}:</strong> {{ payment_apirone_mccp_account }}<br/>
+                                    <strong>{{ text_plugin_version }}:</strong> {{ payment_apirone_mccp_version }}<br/>
+                                    <strong>{{ text_php_version }}:</strong> {{ phpversion }}<br/>
+                                    <strong>{{ text_oc_version }}</strong>: {{ oc_version }}<br/>
+                                </p>
+                                <hr>
+                                <p class="mb-0"><strong>Apirone support:</strong> <a href="mailto:support@apirone.com">support@apirone.com</a></p>
+                            </div>
+                        </div>
                         </div>
                     </div>
-
-                    <div class="row mb-3">
-                        <label class="col-sm-2 col-form-label" for="input-invoice-paid">{{ entry_invoice_paid }}</label>
-                        <div class="col-sm-10">
-                            <select name="payment_apirone_mccp_invoice_paid_status_id" id="input-invoice-paid" class="form-control">
-                                {% for order_status in order_statuses %}
-                                {% if order_status.order_status_id == payment_apirone_mccp_invoice_paid_status_id %}
-                                <option value="{{ order_status.order_status_id }}" selected="selected">{{ order_status.name }}</option>
-                                {% else %}
-                                <option value="{{ order_status.order_status_id }}">{{ order_status.name }}</option>
-                                {% endif %}
-                                {% endfor %}
-                            </select>
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <label class="col-sm-2 col-form-label" for="input-invoice-partpaid">{{ entry_invoice_partpaid }}</label>
-                        <div class="col-sm-10">
-                            <select name="payment_apirone_mccp_invoice_partpaid_status_id" id="input-invoice-partpaid" class="form-control">
-                                {% for order_status in order_statuses %}
-                                {% if order_status.order_status_id == payment_apirone_mccp_invoice_partpaid_status_id %}
-                                <option value="{{ order_status.order_status_id }}" selected="selected">{{ order_status.name }}</option>
-                                {% else %}
-                                <option value="{{ order_status.order_status_id }}">{{ order_status.name }}</option>
-                                {% endif %}
-                                {% endfor %}
-                            </select>
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <label class="col-sm-2 col-form-label" for="input-invoce-overpaid">{{ entry_invoice_overpaid }}</label>
-                        <div class="col-sm-10">
-                            <select name="payment_apirone_mccp_invoice_overpaid_status_id" id="input-invoice-overpaid" class="form-control">
-                                {% for order_status in order_statuses %}
-                                {% if order_status.order_status_id == payment_apirone_mccp_invoice_overpaid_status_id %}
-                                <option value="{{ order_status.order_status_id }}" selected="selected">{{ order_status.name }}</option>
-                                {% else %}
-                                <option value="{{ order_status.order_status_id }}">{{ order_status.name }}</option>
-                                {% endif %}
-                                {% endfor %}
-                            </select>
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <label class="col-sm-2 col-form-label" for="input-invoice-completed">{{ entry_invoice_completed }}</label>
-                        <div class="col-sm-10">
-                            <select name="payment_apirone_mccp_invoice_completed_status_id" id="input-invoice-completed" class="form-control">
-                                {% for order_status in order_statuses %}
-                                {% if order_status.order_status_id == payment_apirone_mccp_invoice_completed_status_id %}
-                                <option value="{{ order_status.order_status_id }}" selected="selected">{{ order_status.name }}</option>
-                                {% else %}
-                                <option value="{{ order_status.order_status_id }}">{{ order_status.name }}</option>
-                                {% endif %}
-                                {% endfor %}
-                            </select>
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <label class="col-sm-2 col-form-label" for="input-invoice-expired">{{ entry_invoice_expired }}</label>
-                        <div class="col-sm-10">
-                            <select name="payment_apirone_mccp_invoice_expired_status_id" id="input-invoice-expired" class="form-control">
-                                {% for order_status in order_statuses %}
-                                {% if order_status.order_status_id == payment_apirone_mccp_invoice_expired_status_id %}
-                                <option value="{{ order_status.order_status_id }}" selected="selected">{{ order_status.name }}</option>
-                                {% else %}
-                                <option value="{{ order_status.order_status_id }}">{{ order_status.name }}</option>
-                                {% endif %}
-                                {% endfor %}
-                            </select>
-                        </div>
-                    </div>
-
-
-                    <div class="row mb-3">
-                        <label class="col-sm-2 col-form-label" for="input-geo-zone">{{ entry_geo_zone }}</label>
-                        <div class="col-sm-10">
-                            <select name="payment_apirone_mccp_geo_zone_id" id="input-geo-zone" class="form-control">
-                                <option value="0">{{ text_all_zones }}</option>
-                                {% for geo_zone in geo_zones %}
-                                {% if geo_zone.geo_zone_id == payment_apirone_mccp_geo_zone_id %}
-                                <option value="{{ geo_zone.geo_zone_id }}" selected="selected">{{ geo_zone.name }}</option>
-                                {% else %}
-                                <option value="{{ geo_zone.geo_zone_id }}">{{ geo_zone.name }}</option>
-                                {% endif %}
-                                {% endfor %}
-                            </select>
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <label class="col-sm-2 col-form-label" for="input-status">{{ entry_status }}</label>
-                        <div class="col-sm-10">
-                            <select name="payment_apirone_mccp_status" id="input-status" class="form-control">
-                                {% if payment_apirone_mccp_status %}
-                                <option value="1" selected="selected">{{ text_enabled }}</option>
-                                <option value="0">{{ text_disabled }}</option>
-                                {% else %}
-                                <option value="1">{{ text_enabled }}</option>
-                                <option value="0" selected="selected">{{ text_disabled }}</option>
-                                {% endif %}
-                            </select>
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <label class="col-sm-2 col-form-label" for="input-sort-order">{{ entry_sort_order }}</label>
-                        <div class="col-sm-10">
-                            <input type="text" name="payment_apirone_mccp_sort_order" value="{{ payment_apirone_mccp_sort_order }}" placeholder="{{ entry_sort_order }}" id="input-sort-order" class="form-control" />
-                        </div>
-                    </div>
-
                 </form>
             </div>
         </div>

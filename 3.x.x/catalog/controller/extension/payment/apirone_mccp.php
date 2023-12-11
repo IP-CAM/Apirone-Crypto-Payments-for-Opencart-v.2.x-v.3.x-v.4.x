@@ -18,8 +18,9 @@ class ControllerExtensionPaymentApironeMccp extends Controller {
         $order = $this->model_checkout_order->getOrder($this->session->data['order_id']);
         $account = unserialize($this->config->get('payment_apirone_mccp_account'))->account;
         $showTestnet = $this->model_extension_payment_apirone_mccp->showTestnet();
+        $factor = (float) $this->config->get('payment_apirone_mccp_factor');
 
-        $data['coins'] = Payment::getCoins($account, $order['total'] * $order['currency_value'], $order['currency_code'], $showTestnet);
+        $data['coins'] = Payment::getCoins($account, $order['total'] * $order['currency_value'] * $factor, $order['currency_code'], $showTestnet);
         $data['order_id'] = $order['order_id'];
         $data['order_key'] = Payment::makeInvoiceSecret( $this->config->get('payment_apirone_mccp_secret'), $order['total']);
         $data['url_redirect'] = $this->url->link('extension/payment/apirone_mccp/confirm');
@@ -61,8 +62,8 @@ class ControllerExtensionPaymentApironeMccp extends Controller {
             $this->showInvoice($orderInvoice, $currencyInfo);
             return;
         }
-
-        $totalCrypto = Payment::fiat2crypto($order['total'] * $order['currency_value'], $order['currency_code'], $currency);
+        $factor = (float) $this->config->get('payment_apirone_mccp_factor');
+        $totalCrypto = Payment::fiat2crypto($order['total'] * $order['currency_value'] * $factor, $order['currency_code'], $currency);
         $amount = (int) Payment::cur2min($totalCrypto, $currencyInfo->{'units-factor'});
 
         $lifetime = (int) $this->config->get('payment_apirone_mccp_timeout');
