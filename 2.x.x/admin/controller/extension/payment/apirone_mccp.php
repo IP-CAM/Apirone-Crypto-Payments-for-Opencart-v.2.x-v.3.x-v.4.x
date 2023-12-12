@@ -124,6 +124,7 @@ class ControllerExtensionPaymentApironeMccp extends Controller
                 $data['success'] = $this->language->get('text_success');
             }
             else {
+                $data['error'] = $this->language->get('error_warning');
                 // No addresses
                 if ($active_currencies == 0) {
                     $data['error'] = $this->language->get('error_empty_currencies');

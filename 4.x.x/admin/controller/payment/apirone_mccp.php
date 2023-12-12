@@ -132,6 +132,7 @@ class ApironeMccp extends \Opencart\System\Engine\Controller
                 $this->model_setting_setting->editSetting('payment_apirone_mccp', $_settings);
             }
             else {
+                $json['error']['warning'] = $this->language->get('error_warning');
                 // No addresses
                 if (count($currencies) == 0) {
                     $json['error']['warning'] = $this->language->get('error_service_not_available');
