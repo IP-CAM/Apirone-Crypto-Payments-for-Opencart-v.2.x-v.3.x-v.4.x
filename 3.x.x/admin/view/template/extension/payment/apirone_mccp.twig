@@ -140,7 +140,7 @@
                                 </span>
                             </label>
                             <div class="col-sm-10">
-                                <input type="text" name="payment_address[{{ currency.abbr }}]" value="{{ currency.address }}" id="payment_address_{{ currency.abbr }}" class="form-control" />
+                                <input type="text" name="address[{{ currency.abbr }}]" value="{{ currency.address }}" id="payment_address_{{ currency.abbr }}" class="form-control" />
                                 {% if currency.error %}
                                 <div class=" text-danger">{{ currency_address_incorrect }}</div>
                                 {% endif %}

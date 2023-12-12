@@ -166,10 +166,11 @@ class Apirone {
 
         $params['transfer-key'] = $account->{'transfer-key'};
         $params['currency'] = $currency;
+        $params['destinations'] = null;
+        $params['processing-fee-policy'] = $policy;
         if ($address) {
             $params['destinations'][] = array("address" => $address);
         }
-        $params['processing-fee-policy'] = $policy;
 
         $result = Request::execute('patch', $endpoint, json_encode($params), true);
         if (Request::isResponseError($result)) {
@@ -213,8 +214,6 @@ class Apirone {
             return json_decode($result);
 
     }
-
-    // TODO: HERE PLACE TO CHECK INVOICE UPDATE
 
     // HELPERS METHODS
 

@@ -5,6 +5,8 @@ namespace Opencart\Admin\Controller\Extension\Apirone\Payment;
 require_once(DIR_EXTENSION . 'apirone/system/library/apirone_api/Apirone.php');
 require_once(DIR_EXTENSION . 'apirone/system/library/apirone_api/Db.php');
 
+use ApironeApi\Apirone;
+
 // Define Plugin version
 define('PLUGIN_VERSION', '1.2.4');
 
@@ -23,7 +25,8 @@ class ApironeMccp extends \Opencart\System\Engine\Controller
         $secret = $this->config->get('payment_apirone_mccp_secret');
 
         $apirone_currencies = \ApironeApi\Apirone::currencyList();
-        $plugin_currencies = unserialize($this->config->get('payment_apirone_mccp_currencies'));
+        $saved_currencies = unserialize($this->config->get('payment_apirone_mccp_currencies'));
+        $saved_processing_fee = $this->config->get('payment_apirone_mccp_processing_fee');
 
         $errors_count = 0;
         $active_currencies = 0;
@@ -46,19 +49,21 @@ class ApironeMccp extends \Opencart\System\Engine\Controller
             $currency->testnet = $item->testnet;
             $currency->icon = $item->icon;
 
-            // Set address from config
-            if ($plugin_currencies) {
-                $currency->address = $plugin_currencies[$item->abbr]->address;
+            // Set address from config if currency exists
+            if ($saved_currencies && array_key_exists($item->abbr, $saved_currencies)) {
+                $currency->address = $saved_currencies[$item->abbr]->address;
             }
-            // Set address from config
+            // Save account settings when changing values
             if ($this->request->server['REQUEST_METHOD'] == 'POST') {
-                $currency->address = $_POST['address'][$item->abbr];
-                $processing_fee = $_POST['payment_apirone_mccp_processing_fee'];
+                $currency->address = $this->request->post['address'][$item->abbr];
+                $processing_fee = $this->request->post['payment_apirone_mccp_processing_fee'];
                 $address = ($currency->address) ?? null;
-                $result = \ApironeApi\Apirone::setTransferAddress($account, $item->abbr, $address, $processing_fee);
-                if ($result == false) {
-                    $currency->error = 1;
-                    $errors_count++;
+                if ($processing_fee != $saved_processing_fee || $address != $saved_currencies[$item->abbr]->address) {
+                    $result = Apirone::setTransferAddress($account, $item->abbr, $address, $processing_fee);
+                    if ($result == false) {
+                        $currency->error = 1;
+                        $errors_count++;
+                    }                
                 }
             }
             // Set tooltip
