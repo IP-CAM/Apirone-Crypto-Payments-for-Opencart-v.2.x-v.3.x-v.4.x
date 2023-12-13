@@ -12,7 +12,8 @@ require_once(__DIR__ . '/Utils.php');
 use \ApironeApi\Request as Request;
 use \ApironeApi\Log as Log;
 
-class Apirone {
+class Apirone
+{
 
     use Utils;
 
@@ -26,7 +27,8 @@ class Apirone {
      * @param string $type wallets|accounts
      * @return Error|string|void|false 
      */
-    public static function getCurrency ($abbr) {
+    public static function getCurrency ($abbr)
+    {
         $result = self::currencyList();
         if ($result == false)
             return false;
@@ -46,7 +48,8 @@ class Apirone {
      * @param string $type wallets|accounts
      * @return Error|string|void|false 
      */
-    public static function currencyList () {
+    public static function currencyList ()
+    {
         $result = self::serviceInfo();
         if ($result == false)
             return array();
@@ -65,7 +68,8 @@ class Apirone {
         return $currencies; 
     }
 
-    public static function accountCurrencyList($account, $actvieOnly = true) {
+    public static function accountCurrencyList($account, $actvieOnly = true)
+    {
         $accountInfo = self::accountInfo($account);
         $serviceInfo = self::serviceInfo();
 
@@ -112,7 +116,8 @@ class Apirone {
      * @param string $type wallets|accounts
      * @return Error|string|void|false 
      */
-    public static function serviceInfo ($type = 'accounts') {
+    public static function serviceInfo ($type = 'accounts')
+    {
         $endpoint = '/v2/' . $type;
         $result = Request::execute('options', $endpoint);
 
@@ -129,7 +134,8 @@ class Apirone {
      * 
      * @return json|false 
      */
-    public static function accountCreate () {
+    public static function accountCreate ()
+    {
         $endpoint = '/v2/accounts';
         $result = Request::execute('post', $endpoint);
 
@@ -148,7 +154,8 @@ class Apirone {
      * @param mixed $currency 
      * @return json|false 
      */
-    public static function accountInfo ($account_id, $currency = false) {
+    public static function accountInfo ($account_id, $currency = false)
+    {
         $endpoint = '/v2/accounts/' . $account_id;
         $params = ($currency) ? array('currency' => $currency) : array();
         $result = Request::execute('get', $endpoint, $params);
@@ -161,7 +168,8 @@ class Apirone {
             return json_decode($result);
     }
 
-    public static function setTransferAddress($account, $currency, $address, $policy = 'percentage') {
+    public static function setTransferAddress($account, $currency, $address, $policy = 'percentage')
+    {
         $endpoint = '/v2/accounts/' . $account->account;
 
         $params['transfer-key'] = $account->{'transfer-key'};
@@ -190,7 +198,8 @@ class Apirone {
      * @param object $invoiceData 
      * @return mixed 
      */
-    public static function invoiceCreate ($account, $invoiceData) {
+    public static function invoiceCreate ($account, $invoiceData)
+    {
         $endpoint = '/v2/accounts/' . $account->account . '/invoices';
         $result = Request::execute('post', $endpoint, json_encode($invoiceData), true);
 
@@ -202,7 +211,8 @@ class Apirone {
             return json_decode($result);
     }
 
-    public static function invoiceInfoPublic($invoice_id) {
+    public static function invoiceInfoPublic($invoice_id)
+    {
         $endpoint = '/v2/invoices/' . $invoice_id;
         $result = Request::execute('get', $endpoint);
 
@@ -223,11 +233,13 @@ class Apirone {
      * @param mixed $response 
      * @return bool 
      */
-    public static function isResponseError($response) {
+    public static function isResponseError($response)
+    {
         return  ($response instanceof \ApironeApi\Error) ? true : false;
     }
 
-    public static function setLogFile($filepath) {
+    public static function setLogFile($filepath)
+    {
         self::$LogFilePath = $filepath;
     }
 
@@ -237,10 +249,8 @@ class Apirone {
      * @param mixed $abbr 
      * @return string 
      */
-    static public function currencyIcon ($abbr) {
-        if ( $abbr[0] == 't') {
-            $abbr = substr($abbr, 1);
-        }
-        return sprintf(self::$currencyIconUrl, $abbr);
+    static public function currencyIcon ($abbr)
+    {
+        return sprintf(self::$currencyIconUrl, str_replace('@', '_', $abbr));
     }
 }

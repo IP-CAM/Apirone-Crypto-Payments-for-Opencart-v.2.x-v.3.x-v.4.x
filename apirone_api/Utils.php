@@ -1,34 +1,67 @@
 <?php
 namespace ApironeApi;
 
-// require_once(__DIR__ . '/Request.php');
-
-trait Utils {
-
+trait Utils
+{
     /**
-     * Returnt transaction link to blockchair.com
-     * 
-     * @param mixed $currency
+     * Explorer link generator
+     *
+     * @param mixed $currency 
+     * @param mixed $type 
+     * @param string $hash 
      * @return string 
      */
-    public static function getTransactionLink($currency) {
-        if ($currency->abbr == 'tbtc') 
-            return 'https://blockchair.com/bitcoin/testnet/transaction/';
-        
-        return sprintf('https://blockchair.com/%s/transactions/', strtolower(str_replace([' ', '(', ')'], ['-', '/', ''],  $currency->name)));
+    public static function getExplorerHref($currency, $type, $hash = '')
+    {
+        $explorer = 'blockchair.com';
+        $currencyName = strtolower(str_replace([' ', '(', ')'], ['-', '/', ''], $currency->getName()));
+        $from = '?from=apirone';
+        if ($currency->abbr == 'tbtc') {
+            $currencyName = 'bitcoin/testnet';
+        }
+
+        if (substr_count($currency->abbr, 'trx') > 0 ){
+            $explorer = self::isTestnet($currency) ? 'shasta.tronscan.org' : 'tronscan.org';
+            $currencyName = '#';
+            $from = '';
+        }
+
+        $href = sprintf('https://%s/%s/%s/%s', ...[$explorer, $currencyName, $type, $hash . $from]);
+
+        return $href;
     }
 
     /**
-     * Returnt transaction link to blockchair.com
-     * 
+     * Return transaction link to explorer
+     *
      * @param mixed $currency
-     * @return string 
+     * @return string
      */
-    public static function getAddressLink($currency, $address) {
-        if ($currency->abbr == 'tbtc') 
-            return 'https://blockchair.com/bitcoin/testnet/address/' . $address;
-        
-        return sprintf('https://blockchair.com/%s/address/', strtolower(str_replace([' ', '(', ')'], ['-', '/', ''],  $currency->name))) . $address;
+    public static function getTransactionLink($currency, $hash = '')
+    {
+        return self::getExplorerHref($currency, 'transaction', $hash);
+    }
+
+    /**
+     * Return transaction link to explorer
+     *
+     * @param mixed $currency
+     * @return string
+     */
+    public static function getAddressLink($currency, $hash = '')
+    {
+        return self::getExplorerHref($currency, 'address', $hash);
+    }
+
+    /**
+     * Testnet currency checker
+     *
+     * @param mixed $currency 
+     * @return bool 
+     */
+    public static function isTestnet($currency)
+    {
+        return (substr_count(strtolower($currency->name), 'testnet') > 0) ? true : false;
     }
 
     /**
@@ -39,7 +72,8 @@ trait Utils {
      * @param mixed $remains 
      * @return void 
      */
-    public static function getQrLink($currency, $input_address, $remains) {
+    public static function getQrLink($currency, $input_address, $remains)
+    {
         $prefix = (substr_count($input_address, ':') > 0 ) ? '' : strtolower(str_replace([' ', '(', ')'], ['-', '', ''],  $currency->name)) . ':';
 
         return 'https://chart.googleapis.com/chart?chs=225x225&cht=qr&chl=' . urlencode($prefix . $input_address . "?amount=" . $remains);
@@ -51,7 +85,8 @@ trait Utils {
      * @param mixed $hash 
      * @return string 
      */
-    public static function maskTransactionHash ($hash) {
+    public static function maskTransactionHash ($hash)
+    {
         return substr($hash, 0, 8) . '......' . substr($hash, -8);
     }
 
@@ -62,18 +97,21 @@ trait Utils {
      * @param bool $zeroTrim (optional)
      * @return string 
      */
-    public static function exp2dec($value, $zeroTrim = false) {
+    public static function exp2dec($value, $zeroTrim = false) 
+    {
         if ($zeroTrim)
             return rtrim(rtrim(sprintf('%.8f', floatval($value)), 0), '.');
         
         return sprintf('%.8f', floatval($value));
     }
 
-    public static function min2cur($value, $unitsFactor) {
+    public static function min2cur($value, $unitsFactor)
+    {
         return $value * $unitsFactor;
     }
 
-    public static function cur2min($value, $unitsFactor) {
+    public static function cur2min($value, $unitsFactor)
+    {
         return $value / $unitsFactor;
     }
 
@@ -85,7 +123,8 @@ trait Utils {
      * @param string $to 
      * @return mixed 
      */
-    static public function fiat2crypto($value, $from='usd', $to = 'btc') {
+    static public function fiat2crypto($value, $from='usd', $to = 'btc')
+    {
         $from = strtolower(trim($from));
         $to = strtolower(trim($to));
         if ($from == $to) {
@@ -107,7 +146,8 @@ trait Utils {
             return (float) $result;
     }
 
-    static public function getAssets($filename, $minify = false) {
+    static public function getAssets($filename, $minify = false)
+    {
         $path = __DIR__ . '/assets/' . $filename;
 
         $content = false;
@@ -122,7 +162,8 @@ trait Utils {
         return $content;
     }
 
-    static public function getAssetsPath($filename, $wwwroot = false) {
+    static public function getAssetsPath($filename, $wwwroot = false)
+    {
         $path = __DIR__ . '/assets/' . $filename;
 
         return ($wwwroot) ? str_replace($wwwroot, '', $path) : $path;    
@@ -153,6 +194,4 @@ trait Utils {
             $string = preg_replace($search, $replace, $string);
             return $string;
     }
-
-
 }

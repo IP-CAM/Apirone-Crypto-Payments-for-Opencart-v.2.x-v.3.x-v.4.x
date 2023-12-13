@@ -2,7 +2,8 @@
 
 namespace ApironeApi;
 
-class Db {
+class Db
+{
 
     const TABLE_INVOICE = 'apirone_mccp';
 
@@ -14,7 +15,8 @@ class Db {
      * @param string $collate 
      * @return string 
      */
-    public static function createInvoicesTableQuery ($db_prefix = '', $charset = 'utf8', $collate = 'utf8_general_ci') {
+    public static function createInvoicesTableQuery ($db_prefix = '', $charset = 'utf8', $collate = 'utf8_general_ci')
+    {
         $invoice_table = $db_prefix . self::TABLE_INVOICE;
 
         $charset_collate = '';
@@ -45,7 +47,8 @@ class Db {
      * @param mixed $db_prefix 
      * @return string 
      */
-    public static function deleteInvoicesTableQuery ($db_prefix) {
+    public static function deleteInvoicesTableQuery ($db_prefix)
+    {
         $invoice_table = $db_prefix . self::TABLE_INVOICE;
 
         $query = "DROP TABLE IF EXISTS `$invoice_table`;";
@@ -60,7 +63,8 @@ class Db {
      * @param string $db_prefix 
      * @return string 
      */
-    public static function getOrderInvoiceQuery($order_id, $db_prefix = '') {
+    public static function getOrderInvoiceQuery($order_id, $db_prefix = '')
+    {
         $invoice_table = $db_prefix . self::TABLE_INVOICE;
 
         $query = "SELECT * FROM `$invoice_table` WHERE `order_id` = $order_id";
@@ -75,7 +79,8 @@ class Db {
      * @param string $db_prefix 
      * @return string 
      */
-    public static function getInvoiceQuery($invoice, $db_prefix = '') {
+    public static function getInvoiceQuery($invoice, $db_prefix = '')
+    {
         $invoice_table = $db_prefix . self::TABLE_INVOICE;
 
         $query = "SELECT * FROM `$invoice_table` WHERE `invoice` = \"$invoice\"";
@@ -90,7 +95,8 @@ class Db {
      * @param string $db_prefix 
      * @return string 
      */
-    public static function insertInvoiceQuery($invoice, $db_prefix = '') {
+    public static function insertInvoiceQuery($invoice, $db_prefix = '')
+    {
         $invoice_table = $db_prefix . self::TABLE_INVOICE;
 
         $query = "INSERT INTO `" . $invoice_table . "` " . 
@@ -111,7 +117,8 @@ class Db {
      * @param string $db_prefix 
      * @return string 
      */
-    public static function updateInvoiceQuery($invoice, $db_prefix = '') {
+    public static function updateInvoiceQuery($invoice, $db_prefix = '')
+    {
         $invoice_table = $db_prefix . self::TABLE_INVOICE;
 
         $query = "UPDATE `" . $invoice_table . "` " . 
@@ -122,8 +129,4 @@ class Db {
 
         return $query;
     }
-
-
-
-
 }

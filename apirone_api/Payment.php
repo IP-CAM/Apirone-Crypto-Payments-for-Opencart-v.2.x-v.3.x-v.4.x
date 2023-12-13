@@ -5,11 +5,13 @@ use ApironeApi\Apirone;
 
 require_once(__DIR__ . '/Apirone.php');
 
-class Payment {
+class Payment
+{
 
     use Utils;
 
-    public static function invoice($invoice, $currency, $statusLink, $merchant='', $back2store = '/') {
+    public static function invoice($invoice, $currency, $statusLink, $merchant='', $back2store = '/')
+    {
         $details = $invoice->details;
         $totalAmount = Payment::exp2dec( Payment::min2cur($details->amount, $currency->{'units-factor'}) );
 
@@ -157,11 +159,13 @@ class Payment {
         return ob_get_clean();
     }
 
-    public static function getCoins($account, $total, $from = 'usd', $showTestnet = false) {
+    public static function getCoins($account, $total, $from = 'usd', $showTestnet = false)
+    {
         return self::preparePayment($account, $total, $from, $showTestnet);
     }
 
-    public static function currencySelector($account, $total, $from = 'usd', $showTestnet = false) {
+    public static function currencySelector($account, $total, $from = 'usd', $showTestnet = false)
+    {
         $currencies = self::preparePayment($account, $total, $from, $showTestnet);
         $count = count($currencies);
 
@@ -198,7 +202,8 @@ class Payment {
     }
 
 
-    protected static function preparePayment($account, $total, $from = 'usd', $showTestnet = false) {
+    protected static function preparePayment($account, $total, $from = 'usd', $showTestnet = false)
+    {
         $currencies = Apirone::accountCurrencyList($account, true);
         if ($currencies == false) {
             return false;
@@ -217,7 +222,8 @@ class Payment {
         return $currenciesList;
     }
 
-    public static function makeInvoiceData($currency, $amount, $lifetime, $callback, $order_amount, $order_currency) {
+    public static function makeInvoiceData($currency, $amount, $lifetime, $callback, $order_amount, $order_currency)
+    {
 
         $invoice = new \stdClass();
 
@@ -234,15 +240,18 @@ class Payment {
         return $invoice;
     }
 
-    public static function makeInvoiceSecret($baseSecret, $additional) {
+    public static function makeInvoiceSecret($baseSecret, $additional)
+    {
         return md5($baseSecret . $additional);
     }
 
-    public static function checkInvoiceSecret($invoiceSecret, $baseSecret, $additional) {
+    public static function checkInvoiceSecret($invoiceSecret, $baseSecret, $additional)
+    {
         return ($invoiceSecret == self::makeInvoiceSecret($baseSecret, $additional)) ? true : false;
     }
 
-    public static function invoiceStatus($invoice) {
+    public static function invoiceStatus($invoice)
+    {
         if ($invoice) {
             if ($invoice->status == 'expired' || $invoice->status == 'completed')
                 return 0;
@@ -250,5 +259,4 @@ class Payment {
         }
         return '';
     }
-
 }

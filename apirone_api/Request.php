@@ -6,7 +6,8 @@ require_once (__DIR__ . '/Error.php');
 
 use ApironeApi\Error;
 
-class Request {
+class Request
+{
     const API_URL = 'https://apirone.com/api';
     const ERROR = false;
 
@@ -76,12 +77,12 @@ class Request {
                 return $error;
             }
 
-            // return json_decode($body, true);
             return $body;
         }
     }
 
-    public static function prepare($params, $json) {
+    public static function prepare($params, $json)
+    {
         if (is_string($params)) {
             return $params;
         }
@@ -93,7 +94,8 @@ class Request {
         }
     }
 
-    public static function isResponseError($response) {
+    public static function isResponseError($response)
+    {
         return  ($response instanceof \ApironeApi\Error) ? true : false;
     }
 }

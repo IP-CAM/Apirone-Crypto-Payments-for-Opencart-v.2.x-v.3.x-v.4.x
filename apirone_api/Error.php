@@ -2,7 +2,8 @@
 
 namespace ApironeApi;
 
-class Error {
+class Error
+{
     public $errors = array();
 
     /**
@@ -12,7 +13,8 @@ class Error {
      * @param string $data 
      * @return void 
      */
-    public function __construct($code = '', $body = '', $data = '' ) {
+    public function __construct($code = '', $body = '', $data = '' )
+    {
         if (empty($code)) {
             return;
         }
@@ -20,12 +22,14 @@ class Error {
         $this->add( $code, $body, $data );
     }
 
-    public function add( $code, $body, $data = '') {
+    public function add( $code, $body, $data = '')
+    {
         $this->errors[$code]['body'] = $body;
         $this->errors[$code]['info'] = $data;
     }
 
-    public function hasError () {
+    public function hasError ()
+    {
         return (!empty($this->errors)) ? true : false;
     }
 
