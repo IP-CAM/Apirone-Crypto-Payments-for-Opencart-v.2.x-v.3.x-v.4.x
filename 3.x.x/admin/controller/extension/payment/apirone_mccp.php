@@ -4,12 +4,24 @@ use ApironeApi\Apirone;
 
 require_once(DIR_SYSTEM . 'library/apirone_api/Apirone.php');
 
-// Define Plugin version
-define('PLUGIN_VERSION', '1.2.4');
+define('PLUGIN_VERSION', '1.2.5');
 
 class ControllerExtensionPaymentApironeMccp extends Controller
 {
     private $error = array();
+
+    public function __construct($registry)
+    {
+        parent::__construct($registry);
+        $logger = new \Log('apirone.log');
+        $debug = (bool) $this->config->get('payment_apirone_mccp_debug');
+        try {
+            Apirone::setLogger($logger, $debug);
+        }
+        catch (Exception $e) {
+            $this->log->write($e->getMessage());
+        }
+    }
 
     public function index()
     {
@@ -89,6 +101,7 @@ class ControllerExtensionPaymentApironeMccp extends Controller
         $this->setValue($data, 'payment_apirone_mccp_testcustomer');
         $this->setValue($data, 'payment_apirone_mccp_processing_fee');
         $this->setValue($data, 'payment_apirone_mccp_factor', true);
+        $this->setValue($data, 'payment_apirone_mccp_debug');
 
         if ($active_currencies == 0 || $data['payment_apirone_mccp_timeout'] <= 0 || $data['payment_apirone_mccp_factor'] <= 0  || count($currencies) == 0) {
             $errors_count++;
@@ -105,20 +118,21 @@ class ControllerExtensionPaymentApironeMccp extends Controller
                 $_settings['payment_apirone_mccp_secret'] = $secret;
                 $_settings['payment_apirone_mccp_currencies'] = serialize($currencies);
 
-                $_settings['payment_apirone_mccp_timeout'] = $_POST['payment_apirone_mccp_timeout'];
-                $_settings['payment_apirone_mccp_invoice_created_status_id'] = $_POST['payment_apirone_mccp_invoice_created_status_id'];
-                $_settings['payment_apirone_mccp_invoice_paid_status_id'] = $_POST['payment_apirone_mccp_invoice_paid_status_id'];
-                $_settings['payment_apirone_mccp_invoice_partpaid_status_id'] = $_POST['payment_apirone_mccp_invoice_partpaid_status_id'];
-                $_settings['payment_apirone_mccp_invoice_overpaid_status_id'] = $_POST['payment_apirone_mccp_invoice_overpaid_status_id'];
-                $_settings['payment_apirone_mccp_invoice_completed_status_id'] = $_POST['payment_apirone_mccp_invoice_completed_status_id'];
-                $_settings['payment_apirone_mccp_invoice_expired_status_id'] = $_POST['payment_apirone_mccp_invoice_expired_status_id'];
-                $_settings['payment_apirone_mccp_geo_zone_id'] = $_POST['payment_apirone_mccp_geo_zone_id'];
-                $_settings['payment_apirone_mccp_status'] = $_POST['payment_apirone_mccp_status'];
-                $_settings['payment_apirone_mccp_sort_order'] = $_POST['payment_apirone_mccp_sort_order'];
-                $_settings['payment_apirone_mccp_merchantname'] = $_POST['payment_apirone_mccp_merchantname'];
-                $_settings['payment_apirone_mccp_testcustomer'] = $_POST['payment_apirone_mccp_testcustomer'];
-                $_settings['payment_apirone_mccp_factor'] = $_POST['payment_apirone_mccp_factor'];
-                $_settings['payment_apirone_mccp_processing_fee'] = $_POST['payment_apirone_mccp_processing_fee'];
+                $_settings['payment_apirone_mccp_timeout'] = $this->request->post['payment_apirone_mccp_timeout'];
+                $_settings['payment_apirone_mccp_invoice_created_status_id'] = $this->request->post['payment_apirone_mccp_invoice_created_status_id'];
+                $_settings['payment_apirone_mccp_invoice_paid_status_id'] = $this->request->post['payment_apirone_mccp_invoice_paid_status_id'];
+                $_settings['payment_apirone_mccp_invoice_partpaid_status_id'] = $this->request->post['payment_apirone_mccp_invoice_partpaid_status_id'];
+                $_settings['payment_apirone_mccp_invoice_overpaid_status_id'] = $this->request->post['payment_apirone_mccp_invoice_overpaid_status_id'];
+                $_settings['payment_apirone_mccp_invoice_completed_status_id'] = $this->request->post['payment_apirone_mccp_invoice_completed_status_id'];
+                $_settings['payment_apirone_mccp_invoice_expired_status_id'] = $this->request->post['payment_apirone_mccp_invoice_expired_status_id'];
+                $_settings['payment_apirone_mccp_geo_zone_id'] = $this->request->post['payment_apirone_mccp_geo_zone_id'];
+                $_settings['payment_apirone_mccp_status'] = $this->request->post['payment_apirone_mccp_status'];
+                $_settings['payment_apirone_mccp_sort_order'] = $this->request->post['payment_apirone_mccp_sort_order'];
+                $_settings['payment_apirone_mccp_merchantname'] = $this->request->post['payment_apirone_mccp_merchantname'];
+                $_settings['payment_apirone_mccp_testcustomer'] = $this->request->post['payment_apirone_mccp_testcustomer'];
+                $_settings['payment_apirone_mccp_factor'] = $this->request->post['payment_apirone_mccp_factor'];
+                $_settings['payment_apirone_mccp_processing_fee'] = $this->request->post['payment_apirone_mccp_processing_fee'];
+                $_settings['payment_apirone_mccp_debug'] = $this->request->post['payment_apirone_mccp_debug'];
 
                 $this->model_setting_setting->editSetting('payment_apirone_mccp', $_settings);
                 $data['success'] = $this->language->get('text_success');
@@ -142,9 +156,7 @@ class ControllerExtensionPaymentApironeMccp extends Controller
             }
         }
 
-        // =============================================================================================
         // Set template variables
-
         $this->document->setTitle($this->language->get('heading_title'));
 
         $this->load->model('localisation/order_status');
@@ -217,7 +229,7 @@ class ControllerExtensionPaymentApironeMccp extends Controller
 
         $data = array(
             'payment_apirone_mccp_version' => PLUGIN_VERSION,
-            'payment_apirone_mccp_secret' => md5(time().$this->session->data['user_token']),
+            'payment_apirone_mccp_secret' => md5(time() . $this->session->data['user_token']),
             'payment_apirone_mccp_invoice_created_status_id' => '1',
             'payment_apirone_mccp_invoice_paid_status_id' => '1',
             'payment_apirone_mccp_invoice_partpaid_status_id' => '1',
@@ -278,6 +290,9 @@ class ControllerExtensionPaymentApironeMccp extends Controller
         if ($version == '1.2.3') {
             $version = $this->upd_version('1.2.4');
         }
+        if ($version == '1.2.4') {
+            $version = $this->upd_version('1.2.5');
+        }
 
         return;
     }
@@ -337,5 +352,4 @@ class ControllerExtensionPaymentApironeMccp extends Controller
 
         return $data['payment_apirone_mccp_version'];
     }
-
 }

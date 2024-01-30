@@ -1,13 +1,9 @@
 <?php
-function pa($mixed, $msg = false) {
-    echo '<pre>';
-    echo $msg ? $msg . ': ' : '';
-    print_r($mixed);
-    echo '</pre>';
-}
-require_once(DIR_SYSTEM . 'library/apirone_api/Db.php');
-class ModelExtensionPaymentApironeMccp extends Model {
 
+require_once(DIR_SYSTEM . 'library/apirone_api/Db.php');
+
+class ModelExtensionPaymentApironeMccp extends Model
+{
     public function getMethod($address, $total) {
         $this->load->language('extension/payment/apirone_mccp');
         $status = false;
@@ -17,8 +13,8 @@ class ModelExtensionPaymentApironeMccp extends Model {
         
         if ($activeCurrencies) {
             $geozone = $this->db->query("SELECT * FROM " . DB_PREFIX . "zone_to_geo_zone WHERE geo_zone_id = '" 
-                . (int)$this->config->get('apirone_mccp_geo_zone_id') 
-                . "' AND country_id = '" . (int)$address['country_id'] . "' AND (zone_id = '" . (int)$address['zone_id'] . "' OR zone_id = '0')");
+                . (int) $this->config->get('apirone_mccp_geo_zone_id') 
+                . "' AND country_id = '" . (int) $address['country_id'] . "' AND (zone_id = '" . (int) $address['zone_id'] . "' OR zone_id = '0')");
 
             if (!$this->config->get('apirone_geo_zone_id') || $geozone->num_rows) {
                 $status = true;
@@ -43,7 +39,8 @@ class ModelExtensionPaymentApironeMccp extends Model {
         return $method_data;
     }
 
-    public function getInvoiceByOrderId($order_id) {
+    public function getInvoiceByOrderId($order_id)
+    {
         $result = $this->db->query(ApironeApi\Db::getOrderInvoiceQuery($order_id, DB_PREFIX));
         if ($result->num_rows) {
             $invoice = $result->rows[0];
@@ -56,7 +53,8 @@ class ModelExtensionPaymentApironeMccp extends Model {
         }
     }
 
-    public function getInvoiceById($invoice_id) {
+    public function getInvoiceById($invoice_id)
+    {
         $result = $this->db->query(ApironeApi\Db::getInvoiceQuery($invoice_id, DB_PREFIX));
 
         if ($result->num_rows) {
@@ -70,7 +68,8 @@ class ModelExtensionPaymentApironeMccp extends Model {
         }
     }
 
-    public function updateInvoice($order_id, $objInvoice) {
+    public function updateInvoice($order_id, $objInvoice)
+    {
         $this->load->model('checkout/order');
 
         $params = array();
@@ -105,7 +104,8 @@ class ModelExtensionPaymentApironeMccp extends Model {
 
     }
 
-    public function getActiveCurrencies() {
+    public function getActiveCurrencies()
+    {
         $currencies = unserialize($this->config->get('payment_apirone_mccp_currencies'));
         $showTestnet = $this->showTestnet();
         $activeCurrencies = array();
@@ -121,8 +121,8 @@ class ModelExtensionPaymentApironeMccp extends Model {
         return $activeCurrencies;
     }
 
-    public function showTestnet() {
-        // return true;
+    public function showTestnet()
+    {
         $this->load->model('account/customer');
 
         if (!$this->customer->isLogged()) {
@@ -134,8 +134,8 @@ class ModelExtensionPaymentApironeMccp extends Model {
         return ($testcustomer == $email) ? true : false;
     }
 
-    private function updateOrderStatus($invoice) {
-
+    private function updateOrderStatus($invoice)
+    {
         $orderHistory = $this->db->query("SELECT * FROM " . DB_PREFIX . "order_history WHERE `order_id` = " . (int) $invoice->order_id);
         $invoiceHistory = $invoice->details->history;
 
@@ -152,7 +152,8 @@ class ModelExtensionPaymentApironeMccp extends Model {
         }
     }
 
-    private function _isHistoryRecordExists($comment, $history) {
+    private function _isHistoryRecordExists($comment, $history)
+    {
         foreach ($history->rows as $row) {
             if ($row['comment'] == $comment) {
                 return true;
@@ -161,8 +162,8 @@ class ModelExtensionPaymentApironeMccp extends Model {
         return false;
     }
 
-    private function _historyRecordComment($address, $item) {
-        
+    private function _historyRecordComment($address, $item)
+    {    
         switch ($item->status) {
             case 'created':
                 $comment = 'Invoice ' . $item->status . '. Payment address: ' . $address;
@@ -180,5 +181,4 @@ class ModelExtensionPaymentApironeMccp extends Model {
 
         return $comment;
     }
-
 }

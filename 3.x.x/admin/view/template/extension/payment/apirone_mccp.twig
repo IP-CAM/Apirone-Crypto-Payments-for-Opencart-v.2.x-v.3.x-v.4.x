@@ -95,6 +95,20 @@
                             </div>
                         </div>
                         <div class="form-group">
+                            <label class="col-sm-2 control-label" for="input-debug">{{ entry_debug }}</label>
+                            <div class="col-sm-10">
+                                <select name="payment_apirone_mccp_debug" id="input-debug" class="form-control">
+                                    {% if payment_apirone_mccp_debug %}
+                                    <option value="1" selected="selected">{{ text_enabled }}</option>
+                                    <option value="0">{{ text_disabled }}</option>
+                                    {% else %}
+                                    <option value="1">{{ text_enabled }}</option>
+                                    <option value="0" selected="selected">{{ text_disabled }}</option>
+                                    {% endif %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
                             <label class="col-sm-2 control-label" for="input-geo-zone">{{ entry_geo_zone }}</label>
                             <div class="col-sm-10">
                                 <select name="payment_apirone_mccp_geo_zone_id" id="input-geo-zone" class="form-control">
@@ -247,7 +261,7 @@
                                 <a target="_blank" href="https://testnet-faucet.com/btc-testnet/?lid=apirone">Testnet faucet</a><br>
                                 <a target="_blank" href="https://kuttler.eu/en/bitcoin/btc/faucet/?lid=apirone">Kuttler</a>
                                 <hr>
-                                <p class="mb-0"><strong>Read more:</strong> <a href="https://apirone.com/faq" target="_blank">https://apirone.com/faq</a></p>
+                                <p class="mb-0"><strong>{{ text_read_more }}:</strong> <a href="https://apirone.com/faq" target="_blank">https://apirone.com/faq</a></p>
                             </div>
                             <div class="_alert _alert-info" role="alert" style="padding: 1rem; margin-bottom: 1rem">
                                 <h4>{{ heading_plugin_info }}</h4>
@@ -259,11 +273,14 @@
                                     <strong>{{ text_oc_version }}</strong>: {{ oc_version }}<br/>
                                 </p>
                                 <hr>
-                                <p class="mb-0"><strong>Apirone support:</strong> <a href="mailto:support@apirone.com">support@apirone.com</a></p>
+                                <p class="mb-0"><strong>{{ text_apirone_support }}:</strong> <a href="mailto:support@apirone.com">support@apirone.com</a></p>
                             </div>
                         </div>
                     </div>
                 </form>
+            </div>
+            <div class="panel-footer">
+                {{ text_apirone_survey }}
             </div>
         </div>
     </div>

@@ -4,8 +4,6 @@ namespace Opencart\Catalog\Model\Extension\Apirone\Payment;
 
 require_once(DIR_EXTENSION . 'apirone/system/library/apirone_api/Db.php');
 
-use ApironeApi\Db;
-
 class ApironeMccp extends \Opencart\System\Engine\Model
 {
     /**
@@ -24,7 +22,7 @@ class ApironeMccp extends \Opencart\System\Engine\Model
         if ($activeCurrencies && $this->config->get('payment_apirone_mccp_status')) {
             $this->load->language('extension/apirone/payment/apirone_mccp');
 
-            $query = $this->db->query("SELECT * FROM " . DB_PREFIX . "zone_to_geo_zone WHERE geo_zone_id = '" . (int)$this->config->get('payment_apirone_mccp_geo_zone_id') . "' AND country_id = '" . (int)$address['country_id'] . "' AND (zone_id = '" . (int)$address['zone_id'] . "' OR zone_id = '0')");
+            $query = $this->db->query("SELECT * FROM " . DB_PREFIX . "zone_to_geo_zone WHERE geo_zone_id = '" . (int) $this->config->get('payment_apirone_mccp_geo_zone_id') . "' AND country_id = '" . (int) $address['country_id'] . "' AND (zone_id = '" . (int) $address['zone_id'] . "' OR zone_id = '0')");
 
             if (!$this->config->get('payment_apirone_geo_zone_id')) {
                 $status = true;
@@ -55,7 +53,7 @@ class ApironeMccp extends \Opencart\System\Engine\Model
      * getMethods
      *
      * Since 4.0.2.0
-     * @param  mixed $address
+     * @param mixed $address
      * @return array
      */
     public function getMethods(array $address = []): array
@@ -67,7 +65,7 @@ class ApironeMccp extends \Opencart\System\Engine\Model
         } elseif (!$this->config->get('payment_apirone_mccp_geo_zone_id')) {
             $status = true;
         } else {
-            $query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "zone_to_geo_zone` WHERE `geo_zone_id` = '" . (int)$this->config->get('payment_apirone_mccp_geo_zone_id') . "' AND `country_id` = '" . (int)$address['country_id'] . "' AND (`zone_id` = '" . (int)$address['zone_id'] . "' OR `zone_id` = '0')");
+            $query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "zone_to_geo_zone` WHERE `geo_zone_id` = '" . (int) $this->config->get('payment_apirone_mccp_geo_zone_id') . "' AND `country_id` = '" . (int) $address['country_id'] . "' AND (`zone_id` = '" . (int) $address['zone_id'] . "' OR `zone_id` = '0')");
 
             if ($query->num_rows) {
                 $status = true;

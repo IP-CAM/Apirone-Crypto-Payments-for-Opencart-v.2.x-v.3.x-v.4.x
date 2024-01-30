@@ -90,6 +90,21 @@
                             </div>
                         </div>
                         <div class="form-group">
+                            <label class="col-sm-2 control-label" for="input-debug"><?php echo $entry_debug; ?></label>
+                            <div class="col-sm-10">
+                                <select name="apirone_mccp_debug" id="input-debug" class="form-control">
+                                    <?php if ($apirone_mccp_debug) : ?>
+                                    <option value="1" selected="selected"><?php echo $text_enabled; ?></option>
+                                    <option value="0"><?php echo $text_disabled; ?></option>
+                                    <?php else : ?>
+                                    <option value="1"><?php echo $text_enabled; ?></option>
+                                    <option value="0" selected="selected"><?php echo $text_disabled; ?></option>
+                                    <?php endif; ?>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
                             <label class="col-sm-2 control-label" for="input-geo-zone"><?php echo $entry_geo_zone; ?></label>
                             <div class="col-sm-10">
                                 <select name="apirone_mccp_geo_zone_id" id="input-geo-zone" class="form-control">
@@ -232,7 +247,7 @@
                         </div>
                     </div>
                     <div class="tab-pane" id="tab-info">
-                        <div style="padding: 1rem; margin-bottom: 1rem">
+                        <div style="padding: 1rem 0; margin-bottom: 1rem">
                             <h4><?php echo $heading_testnet_hint; ?></h4>
                             <hr>
                             <p><?php echo $text_testnet_hint; ?></p>
@@ -241,9 +256,9 @@
                             <a target="_blank" href="https://testnet-faucet.com/btc-testnet/?lid=apirone">Testnet faucet</a><br>
                             <a target="_blank" href="https://kuttler.eu/en/bitcoin/btc/faucet/?lid=apirone">Kuttler</a>
                             <hr>
-                            <p class="mb-0"><strong>Read more:</strong> <a href="https://apirone.com/faq" target="_blank">https://apirone.com/faq</a></p>
+                            <p class="mb-0"><strong><?php echo $text_read_more; ?>:</strong> <a href="https://apirone.com/faq" target="_blank">https://apirone.com/faq</a></p>
                         </div>
-                        <div class="_alert _alert-info" role="alert" style="padding: 1rem; margin-bottom: 1rem">
+                        <div style="padding: 1rem 0; margin-bottom: 1rem">
                             <h4><?php echo $heading_plugin_info; ?></h4>
                             <hr>
                             <p>
@@ -253,11 +268,14 @@
                                 <strong><?php echo $text_oc_version; ?></strong>: <?php echo $oc_version; ?><br/>
                             </p>
                             <hr>
-                            <p class="mb-0"><strong>Apirone support:</strong> <a href="mailto:support@apirone.com">support@apirone.com</a></p>
+                            <p class="mb-0"><strong><?php echo $text_apirone_support; ?>:</strong> <a href="mailto:support@apirone.com">support@apirone.com</a></p>
                         </div>
                     </div>
                 </div>
             </form>
+            </div>
+            <div class="panel-footer">
+                <?php echo $text_apirone_survey; ?>
             </div>
         </div>
     </div>

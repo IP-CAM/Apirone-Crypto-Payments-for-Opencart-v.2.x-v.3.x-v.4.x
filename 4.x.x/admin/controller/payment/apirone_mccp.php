@@ -7,13 +7,25 @@ require_once(DIR_EXTENSION . 'apirone/system/library/apirone_api/Db.php');
 
 use ApironeApi\Apirone;
 
-// Define Plugin version
-define('PLUGIN_VERSION', '1.2.4');
+define('PLUGIN_VERSION', '1.2.5');
 
 
 class ApironeMccp extends \Opencart\System\Engine\Controller
 {
     private $error = array();
+
+    public function __construct($registry)
+    {
+        parent::__construct($registry);
+        $logger = new \Opencart\System\Library\Log('apirone.log');
+        $debug = (bool) $this->config->get('payment_apirone_mccp_debug');
+        try {
+            Apirone::setLogger($logger, $debug);
+        }
+        catch (Exception $e) {
+            $this->log->write($e->getMessage());
+        }
+    }
 
     public function index(): void
     {
@@ -93,6 +105,8 @@ class ApironeMccp extends \Opencart\System\Engine\Controller
         $this->setValue($data, 'payment_apirone_mccp_testcustomer');
         $this->setValue($data, 'payment_apirone_mccp_processing_fee');
         $this->setValue($data, 'payment_apirone_mccp_factor', true);
+        $this->setValue($data, 'payment_apirone_mccp_debug');
+
         $data['payment_apirone_mccp_account'] = $account->account;
         $data['phpversion'] = phpversion();
         $data['oc_version'] = VERSION;
@@ -114,20 +128,21 @@ class ApironeMccp extends \Opencart\System\Engine\Controller
                 $_settings['payment_apirone_mccp_secret'] = $secret;
                 $_settings['payment_apirone_mccp_currencies'] = serialize($currencies);
 
-                $_settings['payment_apirone_mccp_timeout'] = $_POST['payment_apirone_mccp_timeout'];
-                $_settings['payment_apirone_mccp_invoice_created_status_id'] = $_POST['payment_apirone_mccp_invoice_created_status_id'];
-                $_settings['payment_apirone_mccp_invoice_paid_status_id'] = $_POST['payment_apirone_mccp_invoice_paid_status_id'];
-                $_settings['payment_apirone_mccp_invoice_partpaid_status_id'] = $_POST['payment_apirone_mccp_invoice_partpaid_status_id'];
-                $_settings['payment_apirone_mccp_invoice_overpaid_status_id'] = $_POST['payment_apirone_mccp_invoice_overpaid_status_id'];
-                $_settings['payment_apirone_mccp_invoice_completed_status_id'] = $_POST['payment_apirone_mccp_invoice_completed_status_id'];
-                $_settings['payment_apirone_mccp_invoice_expired_status_id'] = $_POST['payment_apirone_mccp_invoice_expired_status_id'];
-                $_settings['payment_apirone_mccp_geo_zone_id'] = $_POST['payment_apirone_mccp_geo_zone_id'];
-                $_settings['payment_apirone_mccp_status'] = $_POST['payment_apirone_mccp_status'];
-                $_settings['payment_apirone_mccp_sort_order'] = $_POST['payment_apirone_mccp_sort_order'];
-                $_settings['payment_apirone_mccp_merchantname'] = $_POST['payment_apirone_mccp_merchantname'];
-                $_settings['payment_apirone_mccp_testcustomer'] = $_POST['payment_apirone_mccp_testcustomer'];
-                $_settings['payment_apirone_mccp_factor'] = $_POST['payment_apirone_mccp_factor'];
-                $_settings['payment_apirone_mccp_processing_fee'] = $_POST['payment_apirone_mccp_processing_fee'];
+                $_settings['payment_apirone_mccp_timeout'] = $this->request->post['payment_apirone_mccp_timeout'];
+                $_settings['payment_apirone_mccp_invoice_created_status_id'] = $this->request->post['payment_apirone_mccp_invoice_created_status_id'];
+                $_settings['payment_apirone_mccp_invoice_paid_status_id'] = $this->request->post['payment_apirone_mccp_invoice_paid_status_id'];
+                $_settings['payment_apirone_mccp_invoice_partpaid_status_id'] = $this->request->post['payment_apirone_mccp_invoice_partpaid_status_id'];
+                $_settings['payment_apirone_mccp_invoice_overpaid_status_id'] = $this->request->post['payment_apirone_mccp_invoice_overpaid_status_id'];
+                $_settings['payment_apirone_mccp_invoice_completed_status_id'] = $this->request->post['payment_apirone_mccp_invoice_completed_status_id'];
+                $_settings['payment_apirone_mccp_invoice_expired_status_id'] = $this->request->post['payment_apirone_mccp_invoice_expired_status_id'];
+                $_settings['payment_apirone_mccp_geo_zone_id'] = $this->request->post['payment_apirone_mccp_geo_zone_id'];
+                $_settings['payment_apirone_mccp_status'] = $this->request->post['payment_apirone_mccp_status'];
+                $_settings['payment_apirone_mccp_sort_order'] = $this->request->post['payment_apirone_mccp_sort_order'];
+                $_settings['payment_apirone_mccp_merchantname'] = $this->request->post['payment_apirone_mccp_merchantname'];
+                $_settings['payment_apirone_mccp_testcustomer'] = $this->request->post['payment_apirone_mccp_testcustomer'];
+                $_settings['payment_apirone_mccp_factor'] = $this->request->post['payment_apirone_mccp_factor'];
+                $_settings['payment_apirone_mccp_processing_fee'] = $this->request->post['payment_apirone_mccp_processing_fee'];
+                $_settings['payment_apirone_mccp_debug'] = $this->request->post['payment_apirone_mccp_debug'];
 
                 $this->model_setting_setting->editSetting('payment_apirone_mccp', $_settings);
             }
@@ -172,9 +187,7 @@ class ApironeMccp extends \Opencart\System\Engine\Controller
             return;
         }
 
-        // =============================================================================================
         // Set template variables
-
         $this->document->setTitle($this->language->get('heading_title'));
 
         $data = array_merge($data, $this->load->language('apirone_mccp'));
@@ -211,19 +224,19 @@ class ApironeMccp extends \Opencart\System\Engine\Controller
         $data['breadcrumbs'] = array();
         $data['breadcrumbs'][] = array(
             'text' => $this->language->get('text_home'),
-            'href' => $this->url->link('common/dashboard', 'user_token='. $this->session->data['user_token'], true)
+            'href' => $this->url->link('common/dashboard', 'user_token=' . $this->session->data['user_token'], true)
         );
         $data['breadcrumbs'][] = array(
             'text' => $this->language->get('text_extension'),
-            'href' => $this->url->link('marketplace/extension', 'user_token='. $this->session->data['user_token'] . '&type=payment', true)
+            'href' => $this->url->link('marketplace/extension', 'user_token=' . $this->session->data['user_token'] . '&type=payment', true)
         );
         $data['breadcrumbs'][] = array(
             'text' => $this->language->get('heading_title'),
-            'href' => $this->url->link('extension/apirone/payment/apirone_mccp', 'user_token='. $this->session->data['user_token'], true)
+            'href' => $this->url->link('extension/apirone/payment/apirone_mccp', 'user_token=' . $this->session->data['user_token'], true)
         );
 
-        $data['save'] = $this->url->link('extension/apirone/payment/apirone_mccp', 'user_token='. $this->session->data['user_token'], true);
-        $data['back'] = $this->url->link('marketplace/extension', 'user_token='. $this->session->data['user_token'] . '&type=payment', true);
+        $data['save'] = $this->url->link('extension/apirone/payment/apirone_mccp', 'user_token=' . $this->session->data['user_token'], true);
+        $data['back'] = $this->url->link('marketplace/extension', 'user_token=' . $this->session->data['user_token'] . '&type=payment', true);
     }
 
     protected function setValue(&$data, $value, $required = false)
@@ -245,7 +258,7 @@ class ApironeMccp extends \Opencart\System\Engine\Controller
         $this->load->model('setting/setting');
 
         $data = array(
-            'payment_apirone_mccp_secret' => md5(time(). $this->session->data['user_token']),
+            'payment_apirone_mccp_secret' => md5(time() . $this->session->data['user_token']),
             'payment_apirone_mccp_version' => PLUGIN_VERSION,
             'payment_apirone_mccp_invoice_created_status_id' => '1',
             'payment_apirone_mccp_invoice_paid_status_id' => '1',
@@ -307,6 +320,9 @@ class ApironeMccp extends \Opencart\System\Engine\Controller
         }
         if ($version == '1.2.3') {
             $version = $this->upd_version('1.2.4');
+        }
+        if ($version == '1.2.4') {
+            $version = $this->upd_version('1.2.5');
         }
 
         return;

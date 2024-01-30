@@ -3,21 +3,20 @@
 namespace ApironeApi;
 
 require_once(__DIR__ . '/Request.php');
-require_once(__DIR__ . '/Log.php');
+require_once(__DIR__ . '/LoggerWrapper.php');
 require_once(__DIR__ . '/Db.php');
 
 require_once(__DIR__ . '/Utils.php');
 
 
 use \ApironeApi\Request as Request;
-use \ApironeApi\Log as Log;
+use \ApironeApi\LoggerWrapper as LoggerWrapper;
+use InvalidArgumentException;
 
 class Apirone
 {
 
     use Utils;
-
-    static $LogFilePath = '';
 
     static $currencyIconUrl = 'https://apirone.com/static/img2/%s.svg';
 
@@ -68,7 +67,14 @@ class Apirone
         return $currencies; 
     }
 
-    public static function accountCurrencyList($account, $actvieOnly = true)
+    /**
+     * Returns a list of set currencies
+     *
+     * @param mixed $account 
+     * @param bool $activeOnly 
+     * @return mixed 
+     */
+    public static function accountCurrencyList($account, $activeOnly = true)
     {
         $accountInfo = self::accountInfo($account);
         $serviceInfo = self::serviceInfo();
@@ -102,12 +108,12 @@ class Apirone
             $item->address = $destinations[$item->abbr];
             $item->icon = self::currencyIcon($item->abbr);
             $item->testnet = (substr_count(strtolower($item->name), 'testnet') > 0) ? 1 : 0;
-            if($actvieOnly && !empty($item->address)) {
+            if($activeOnly && !empty($item->address)) {
                 $activeCurrencies[] = $item;
             }
         }
 
-        return ($actvieOnly) ? $activeCurrencies : $currencies;
+        return ($activeOnly) ? $activeCurrencies : $currencies;
     }
 
     /**
@@ -119,32 +125,20 @@ class Apirone
     public static function serviceInfo ($type = 'accounts')
     {
         $endpoint = '/v2/' . $type;
-        $result = Request::execute('options', $endpoint);
 
-        if (Request::isResponseError($result)) {
-            Log::debug($result);
-            return false;
-        }
-        else
-            return json_decode($result);
+        return Request::execute('options', $endpoint);
     }
 
     /**
-     * Create new acoount
+     * Create new account
      * 
      * @return json|false 
      */
     public static function accountCreate ()
     {
         $endpoint = '/v2/accounts';
-        $result = Request::execute('post', $endpoint);
 
-        if (Request::isResponseError($result)) {
-            Log::debug($result);
-            return false;
-        }
-        else
-            return json_decode($result);
+        return Request::execute('post', $endpoint);
     }
 
     /**
@@ -158,14 +152,8 @@ class Apirone
     {
         $endpoint = '/v2/accounts/' . $account_id;
         $params = ($currency) ? array('currency' => $currency) : array();
-        $result = Request::execute('get', $endpoint, $params);
 
-        if (Request::isResponseError($result)) {
-            Log::debug($result);
-            return false;
-        }
-        else
-            return json_decode($result);
+        return Request::execute('get', $endpoint, $params);
     }
 
     public static function setTransferAddress($account, $currency, $address, $policy = 'percentage')
@@ -180,17 +168,8 @@ class Apirone
             $params['destinations'][] = array("address" => $address);
         }
 
-        $result = Request::execute('patch', $endpoint, json_encode($params), true);
-        if (Request::isResponseError($result)) {
-            Log::debug($result);
-            return false;
-        }
-
-        return $result;
+        return Request::execute('patch', $endpoint, $params, true);
     }
-
-
-    // INVOICES MOTHODS
 
     /**
      * 
@@ -201,46 +180,28 @@ class Apirone
     public static function invoiceCreate ($account, $invoiceData)
     {
         $endpoint = '/v2/accounts/' . $account->account . '/invoices';
-        $result = Request::execute('post', $endpoint, json_encode($invoiceData), true);
 
-        if (Request::isResponseError($result)) {
-            Log::debug($result);
-            return $result;
-        }
-        else
-            return json_decode($result);
+        return Request::execute('post', $endpoint, $invoiceData, true);
     }
 
     public static function invoiceInfoPublic($invoice_id)
     {
         $endpoint = '/v2/invoices/' . $invoice_id;
-        $result = Request::execute('get', $endpoint);
 
-        if (Request::isResponseError($result)) {
-            Log::debug($result);
-            return false;
-        }
-        else
-            return json_decode($result);
-
+        return Request::execute('get', $endpoint);
     }
-
-    // HELPERS METHODS
 
     /**
-     * Check is response has error
-     * 
-     * @param mixed $response 
-     * @return bool 
+     * Configure logger
+     *
+     * @param mixed $loggerInstance 
+     * @param bool $debugMode 
+     * @return void 
+     * @throws InvalidArgumentException 
      */
-    public static function isResponseError($response)
+    public static function setLogger($loggerInstance, $debugMode = false)
     {
-        return  ($response instanceof \ApironeApi\Error) ? true : false;
-    }
-
-    public static function setLogFile($filepath)
-    {
-        self::$LogFilePath = $filepath;
+        LoggerWrapper::setLogger($loggerInstance, $debugMode);   
     }
 
     /**

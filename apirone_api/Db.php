@@ -89,7 +89,7 @@ class Db
     }
 
     /**
-     * Retur insert invoice SQL query
+     * Return insert invoice SQL query
      * 
      * @param mixed $invoice 
      * @param string $db_prefix 

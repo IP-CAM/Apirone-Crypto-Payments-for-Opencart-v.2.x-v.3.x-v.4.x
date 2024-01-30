@@ -83,6 +83,14 @@ License MIT
 
 ## Changelog ##
 
+### Version 1.2.5 ###
+
+* Added internal QR code generator.
+* Added Logging & Debug mode.
+* Settings are divided by tabs.
+* Added a “Tips and Information” tab.
+* Fixed admin page layout.
+
 ### Version 1.2.4 ###
 
 * Fixed bug with unsaved settings for Opencart version 4.0.2.3

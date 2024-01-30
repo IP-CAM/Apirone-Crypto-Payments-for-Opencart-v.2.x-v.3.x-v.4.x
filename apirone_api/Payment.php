@@ -4,7 +4,6 @@ namespace ApironeApi;
 use ApironeApi\Apirone;
 
 require_once(__DIR__ . '/Apirone.php');
-
 class Payment
 {
 
@@ -45,7 +44,7 @@ class Payment
                 <div class="invoice__info">
                     <div class="qr__wrapper">
                     <?php if ($status == 'created' || $status == 'partpaid') : ?>
-                        <img src="<?php echo Payment::getQrLink($currency, $details->address, $remains); ?>">
+                        <img src="<?php echo Payment::renderQr($currency, $details->address, $remains); ?>">
                         <?php $statusMessageDesc = ($countdown >= 0) ? 'Waiting for payments...' : 'Updating status...'; ?>
                     <?php else: ?>
                         <?php
@@ -64,7 +63,7 @@ class Payment
                                     break;
                             }
                         ?>
-                        <img src="<?php echo Payment::getQrLink($currency, $details->address, $totalAmount); ?>" class="blur">
+                        <img src="<?php echo Payment::renderQr($currency, $details->address, $totalAmount); ?>" class="blur">
                         <div class="status-icon-wrapper">
                             <div class="status-icon"></div>
                         </div> 

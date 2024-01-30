@@ -1,6 +1,10 @@
 <?php
 namespace ApironeApi;
 
+require_once(__DIR__ . '/QRCode.php');
+
+use ApironeApi\QRCode;
+
 trait Utils
 {
     /**
@@ -14,7 +18,7 @@ trait Utils
     public static function getExplorerHref($currency, $type, $hash = '')
     {
         $explorer = 'blockchair.com';
-        $currencyName = strtolower(str_replace([' ', '(', ')'], ['-', '/', ''], $currency->getName()));
+        $currencyName = strtolower(str_replace([' ', '(', ')'], ['-', '/', ''], $currency->name));
         $from = '?from=apirone';
         if ($currency->abbr == 'tbtc') {
             $currencyName = 'bitcoin/testnet';
@@ -62,6 +66,22 @@ trait Utils
     public static function isTestnet($currency)
     {
         return (substr_count(strtolower($currency->name), 'testnet') > 0) ? true : false;
+    }
+
+    /**
+     * Return base64 encoded QR png
+     *
+     * @param mixed $currency
+     * @param mixed $input_address
+     * @param mixed $amount
+     * @return string
+     */
+    public static function renderQr($currency, $input_address, $amount = null)
+    {
+        $prefix = (substr_count($input_address, ':') > 0) ? '' : strtolower(str_replace([' ', '(', ')'], ['-', '', ''], $currency->name)) . ':';
+        $amount = ($amount !== null && $amount > 0) ? '?amount=' . $amount : '';
+
+        return QRCode::init()->data($prefix . $input_address . $amount)->size(225)->levelQrt()->base64();
     }
 
     /**
@@ -138,12 +158,7 @@ trait Utils
         );
         $result = Request::execute('get', $endpoint, $params );
 
-        if (Request::isResponseError($result)) {
-            Log::debug($result);
-            return false;
-        }
-        else
-            return (float) $result;
+        return (float) $result;
     }
 
     static public function getAssets($filename, $minify = false)

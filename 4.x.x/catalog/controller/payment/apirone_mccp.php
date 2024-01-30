@@ -7,15 +7,23 @@ require_once(DIR_EXTENSION . 'apirone/system/library/apirone_api/Payment.php');
 use ApironeApi\Apirone;
 use ApironeApi\Payment;
 
-function pa($mixed) {
-    echo '<pre>';
-    print_r($mixed);
-    echo '</pre>';
-}
-class ApironeMccp extends \Opencart\System\Engine\Controller {
+class ApironeMccp extends \Opencart\System\Engine\Controller
+{
+    public function __construct($registry)
+    {
+        parent::__construct($registry);
+        $logger = new \Opencart\System\Library\Log('apirone.log');
+        $debug = (bool) $this->config->get('payment_apirone_mccp_debug');
+        try {
+            Apirone::setLogger($logger, $debug);
+        }
+        catch (Exception $e) {
+            $this->log->write($e->getMessage());
+        }
+    }
 
-    public function index() {
-
+    public function index()
+    {
         $data['button_confirm'] = $this->language->get('button_confirm');
         $this->load->model('checkout/order');
         $this->load->language('extension/apirone/payment/apirone_mccp');
@@ -34,8 +42,8 @@ class ApironeMccp extends \Opencart\System\Engine\Controller {
         return $this->load->view('extension/apirone/payment/apirone_mccp', $data);
     }
 
-    public function confirm() {
-
+    public function confirm()
+    {
         $this->load->model('checkout/order');
         $this->load->language('extension/apirone/payment/apirone_mccp');
         $this->load->model('extension/apirone/payment/apirone_mccp');
@@ -45,7 +53,7 @@ class ApironeMccp extends \Opencart\System\Engine\Controller {
 
         $secret = $this->config->get('payment_apirone_mccp_secret');
         $order_id = isset($this->request->get['order']) ? $this->request->get['order'] : '';
-        $order = $this->model_checkout_order->getOrder((int)$order_id);
+        $order = $this->model_checkout_order->getOrder((int) $order_id);
 
         // Redirect to cart if order not found
         if (empty($order) || !Payment::checkInvoiceSecret($order_key, $secret, $order['total'] . $order['date_added'])) {
@@ -55,7 +63,7 @@ class ApironeMccp extends \Opencart\System\Engine\Controller {
 
         $currencyInfo = Apirone::getCurrency($currency);
 
-        // Is order invoice aready exists
+        // Is order invoice already exists
         $orderInvoice = $this->model_extension_apirone_payment_apirone_mccp->getInvoiceByOrderId($order_id);
         if ($orderInvoice) {
             // Update invoice when page loaded or reloaded & status != 0 (expired || completed)
@@ -90,13 +98,11 @@ class ApironeMccp extends \Opencart\System\Engine\Controller {
 
             return;
         }
-        else {
-            $this->response->redirect($this->url->link('checkout/cart'));
-            return;
-        }
+        $this->response->redirect($this->url->link('checkout/cart'));
     }
 
-    public function callback() {
+    public function callback()
+    {
         $this->load->model('checkout/order');
         $this->load->model('extension/apirone/payment/apirone_mccp');
         $params = false;
@@ -139,9 +145,12 @@ class ApironeMccp extends \Opencart\System\Engine\Controller {
         if($invoiceUpdated) {
             $this->model_extension_apirone_payment_apirone_mccp->updateInvoice($invoice->order_id, $invoiceUpdated);
         }
+
+        LoggerWrapper::callbackDebug('', $params);
     }
 
-    public function status() {
+    public function status()
+    {
         $this->load->model('extension/apirone/payment/apirone_mccp');
         $id = $this->request->get['id'];
         $invoice = $this->model_extension_apirone_payment_apirone_mccp->getInvoiceById($id);
@@ -149,7 +158,8 @@ class ApironeMccp extends \Opencart\System\Engine\Controller {
         echo Payment::invoiceStatus($invoice);
     }
     
-    protected function showInvoice($invoice, &$currency, $clear_cart = false) {
+    protected function showInvoice($invoice, &$currency, $clear_cart = false)
+    {
         $merchant = $this->config->get('payment_apirone_mccp_merchantname');
 
         if ($merchant == '') {
@@ -175,5 +185,4 @@ class ApironeMccp extends \Opencart\System\Engine\Controller {
         $this->response->setOutput($this->load->view('extension/apirone/payment/apirone_mccp_invoice', $data));
         return;
     }
-
 }
