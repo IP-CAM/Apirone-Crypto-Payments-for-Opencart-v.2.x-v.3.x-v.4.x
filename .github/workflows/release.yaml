@@ -10,13 +10,15 @@ jobs:
     steps:
     
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Build artifacts
         run: make
 
       - id: release_info
         uses: release-drafter/release-drafter@v5
+        with:
+          config-name: release-drafter.yaml
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -32,29 +34,39 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Release
-        id: release
-        uses: softprops/action-gh-release@v1
+      - name: Release OC2
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          files: |
-            apirone-crypto-payments.oc*
+          upload_url: ${{ steps.release_info.outputs.upload_url }}
+          asset_path: apirone-crypto-payments.oc2.${{ github.ref_name }}.ocmod.zip
+          asset_name: apirone-crypto-payments.oc2.${{ github.ref_name }}.ocmod.zip
+          asset_content_type: application/zip
 
-      - name: Build message
-        run: |
-          get_message()
-          {
-          cat <<EOF
-          Release ${{ github.repository }} has been created. Link: ${{ steps.release.outputs.url }}
-          EOF
-          }
-          
-          echo MESSAGE=$(get_message) >> $GITHUB_ENV
-
-      - name: Notify Telegram
-        uses: yamaks2306/telegram-notification@main
-        if: always()
+      - name: Release OC3
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          chat_id: ${{ secrets.TG_TECH_CHAT_ID }}
-          token: ${{ secrets.TG_TOKEN }}
-          include_commit_info: false
-          message: ${{ env.MESSAGE }}
+          upload_url: ${{ steps.release_info.outputs.upload_url }}
+          asset_path: apirone-crypto-payments.oc3.${{ github.ref_name }}.ocmod.zip
+          asset_name: apirone-crypto-payments.oc3.${{ github.ref_name }}.ocmod.zip
+          asset_content_type: application/zip
+
+      - name: Release OC4
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.release_info.outputs.upload_url }}
+          asset_path: apirone-crypto-payments.oc4.${{ github.ref_name }}.ocmod.zip
+          asset_name: apirone-crypto-payments.oc4.${{ github.ref_name }}.ocmod.zip
+          asset_content_type: application/zip
+
+      - name: Send notification
+        if: ${{ always() }}
+        uses: sarisia/actions-status-discord@v1
+        with:
+          webhook: ${{ secrets.discord_webhook_url }}
+          description: 'Opencart plugin ${{  github.ref_name }} draft released now.'
