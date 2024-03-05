@@ -106,9 +106,12 @@ class ModelExtensionPaymentApironeMccp extends Model
 
     public function getActiveCurrencies()
     {
+        if (!$this->config->get('payment_apirone_mccp_account')) {
+            return [];
+        }
         $currencies = unserialize($this->config->get('payment_apirone_mccp_currencies'));
         $showTestnet = $this->showTestnet();
-        $activeCurrencies = array();
+        $activeCurrencies = [];
 
         foreach ($currencies as $item) {
             if ($item->testnet == 1 && $showTestnet == false) {

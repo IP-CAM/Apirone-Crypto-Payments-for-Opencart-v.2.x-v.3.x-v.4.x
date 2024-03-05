@@ -29,7 +29,7 @@ class ControllerExtensionPaymentApironeMccp extends Controller
         $this->load->language('extension/payment/apirone_mccp');
         $this->load->model('extension/payment/apirone_mccp');
 
-        $account = unserialize($this->config->get('apirone_mccp_account'));
+        $account = $this->getAccount();
         $secret = $this->config->get('apirone_mccp_secret');
 
         $apirone_currencies = Apirone::currencyList();
@@ -71,7 +71,7 @@ class ControllerExtensionPaymentApironeMccp extends Controller
                     if ($result == false) {
                         $currency->error = 1;
                         $errors_count++;
-                    }                
+                    }
                 }
             }
             // Set tooltip
@@ -176,7 +176,10 @@ class ControllerExtensionPaymentApironeMccp extends Controller
         }
 
         $this->getBreadcrumbsAndActions($data);
-        $data['apirone_mccp_account'] = $account->account;
+        if (!$account) {
+            $data['error'] = $this->language->get('error_account_not_exist');
+        }
+        $data['apirone_mccp_account'] = $account ? $account->account : $this->language->get('text_account_not_exist');
         $data['phpversion'] = phpversion();
         $data['oc_version'] = VERSION;
         $data['errors'] = $this->error;
@@ -185,6 +188,25 @@ class ControllerExtensionPaymentApironeMccp extends Controller
         $data['footer'] = $this->load->controller('common/footer');
 
         $this->response->setOutput($this->load->view('extension/payment/apirone_mccp', $data));
+    }
+
+    protected function getAccount() 
+    {
+        $account = $this->config->get('apirone_mccp_account');
+        if($account) {
+            return unserialize($account);
+        }
+
+        $account = Apirone::accountCreate();
+        if ($account) {
+            $current = $this->model_setting_setting->getSetting('apirone_mccp');
+            $current['apirone_mccp_account'] = serialize($account);
+
+            $this->model_setting_setting->editSetting('apirone_mccp', $current);
+            return $account;
+        }
+
+        return false;
     }
 
     protected function validate()

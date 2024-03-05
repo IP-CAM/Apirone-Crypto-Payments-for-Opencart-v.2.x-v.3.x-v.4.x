@@ -24,6 +24,7 @@ $_['text_testnet_hint'] = "Please do not spend real crypto if you want to test t
 $_['text_read_more'] = "Read more";
 $_['text_apirone_support'] = "Apirone support";
 $_['text_apirone_survey'] = 'Please <a href="https://www.smartsurvey.co.uk/s/YAWKC7/" target="_blank">fill-up</a> our survey to improve the Opencart plugin. The results will help us shape a road map for the future.';
+$_['text_account_not_exist'] = "Not exist";
 
 # Tabs
 $_['tab_settings'] = 'Settings';
@@ -67,3 +68,4 @@ $_['error_permission'] = 'Warning: You do not have permission to modify payment 
 $_['error_apirone_mccp_timeout'] = 'The required field. Please, specify value in seconds.';
 $_['error_apirone_mccp_timeout_positive'] = 'Value must be positive. Please, specify value in seconds.';
 $_['error_apirone_mccp_factor'] = 'Value must be positive. See tooltip for details.';
+$_['error_account_not_exist'] = "The account does not exist. Please reinstall the plugin. If the account cannot be created again, contact our support team.";

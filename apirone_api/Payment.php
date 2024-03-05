@@ -23,7 +23,6 @@ class Payment
         }
 
         $remains = Payment::exp2dec( Payment::min2cur($remains, $currency->{'units-factor'}) );
-        $link = Payment::getTransactionLink($currency);
 
         $status = $invoice->status;
         $statusCode = Payment::invoiceStatus($invoice);
@@ -140,7 +139,9 @@ class Payment
                                 <div>
                                     <span class="date-gmt"><?php echo $item->date . 'Z'; ?></span> 
                                     <?php if (property_exists($item, 'txid')) : ?>
-                                    <a class="address-link" href="<?php echo $link . $item->txid; ?>" target="_blank"></a>
+                                    <a class="address-link" href="<?php echo Payment::getTransactionLink($currency, $item->txid); ?>" target="_blank">
+                                        (<?php echo Payment::exp2dec( Payment::min2cur($item->amount, $currency->{'units-factor'}) ); ?>)
+                                    </a>
                                     <?php endif; ?>
                                 </div>
                                 <div><strong><?php echo $item->status; ?></strong></div>

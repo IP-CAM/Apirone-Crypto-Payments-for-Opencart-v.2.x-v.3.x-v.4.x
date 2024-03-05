@@ -33,7 +33,7 @@ class ApironeMccp extends \Opencart\System\Engine\Controller
         $this->load->language('extension/apirone/payment/apirone_mccp');
         $this->load->model('extension/apirone/payment/apirone_mccp');
 
-        $account = unserialize($this->config->get('payment_apirone_mccp_account'));
+        $account = $this->getAccount();
         $secret = $this->config->get('payment_apirone_mccp_secret');
 
         $apirone_currencies = \ApironeApi\Apirone::currencyList();
@@ -75,7 +75,7 @@ class ApironeMccp extends \Opencart\System\Engine\Controller
                     if ($result == false) {
                         $currency->error = 1;
                         $errors_count++;
-                    }                
+                    }
                 }
             }
             // Set tooltip
@@ -107,7 +107,8 @@ class ApironeMccp extends \Opencart\System\Engine\Controller
         $this->setValue($data, 'payment_apirone_mccp_factor', true);
         $this->setValue($data, 'payment_apirone_mccp_debug');
 
-        $data['payment_apirone_mccp_account'] = $account->account;
+        $data['payment_apirone_mccp_account'] = $account ? $account->account : $this->language->get('text_account_not_exist');
+
         $data['phpversion'] = phpversion();
         $data['oc_version'] = VERSION;
 
@@ -208,11 +209,33 @@ class ApironeMccp extends \Opencart\System\Engine\Controller
 
         $this->getBreadcrumbsAndActions($data);
         $data['errors'] = $this->error;
+        if (!$account) {
+            $data['error'] = $this->language->get('error_account_not_exist');
+        }
         $data['header'] = $this->load->controller('common/header');
         $data['column_left'] = $this->load->controller('common/column_left');
         $data['footer'] = $this->load->controller('common/footer');
 
         $this->response->setOutput($this->load->view('extension/apirone/payment/apirone_mccp', $data));
+    }
+
+    protected function getAccount() 
+    {
+        $account = $this->config->get('payment_apirone_mccp_account');
+        if($account) {
+            return unserialize($account);
+        }
+
+        $account = Apirone::accountCreate();
+        if ($account) {
+            $current = $this->model_setting_setting->getSetting('payment_apirone_mccp');
+            $current['payment_apirone_mccp_account'] = serialize($account);
+
+            $this->model_setting_setting->editSetting('payment_apirone_mccp', $current);
+            return $account;
+        }
+
+        return false;
     }
 
     protected function validate()

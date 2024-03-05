@@ -157,6 +157,9 @@ class ApironeMccp extends \Opencart\System\Engine\Model
 
     public function getActiveCurrencies(): array
     {
+        if ($this->config->get('payment_apirone_mccp_currencies') === false) {
+            return [];
+        }
         $currencies = unserialize($this->config->get('payment_apirone_mccp_currencies'));
         $showTestnet = $this->showTestnet();
         $showTestnet = true;
