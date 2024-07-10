@@ -186,7 +186,7 @@ class ControllerExtensionPaymentApironeMccp extends Controller
 
         $statusLink = $this->url->link('extension/payment/apirone_mccp/status', 'id=' . $invoice->invoice);
 
-        $data['invoice'] = Payment::invoice($invoice, $currency, $statusLink, $merchant);
+        $data['invoice'] = Payment::invoice($invoice, $currency, $statusLink, $merchant, HTTPS_SERVER);
         $data['title'] = '';
 
         if ($clear_cart) {

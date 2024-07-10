@@ -179,12 +179,17 @@ class ApironeMccp extends \Opencart\System\Engine\Model
 
     public function showTestnet()
     {
+        $testcustomer = $this->config->get('payment_apirone_mccp_testcustomer');
+
+        if ($testcustomer = '*') {
+            return true;
+        }
+
         $this->load->model('account/customer');
 
         if (!$this->customer->isLogged()) {
             return false;
         }
-        $testcustomer = $this->config->get('payment_apirone_mccp_testcustomer');
         $email = $this->customer->getEmail();
 
         return ($testcustomer == $email) ? true : false;

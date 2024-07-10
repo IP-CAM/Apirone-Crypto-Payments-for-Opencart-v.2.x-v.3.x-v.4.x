@@ -33,7 +33,10 @@ class ControllerExtensionPaymentApironeMccp extends Controller
         $secret = $this->config->get('payment_apirone_mccp_secret');
 
         $apirone_currencies = Apirone::currencyList();
-        $saved_currencies = unserialize($this->config->get('payment_apirone_mccp_currencies'));
+
+        $payment_apirone_mccp_currencies = $this->config->get('payment_apirone_mccp_currencies');
+        $saved_currencies = ($payment_apirone_mccp_currencies) ? unserialize($payment_apirone_mccp_currencies) : '';
+
         $saved_processing_fee = $this->config->get('payment_apirone_mccp_processing_fee');
 
         $errors_count = 0;

@@ -171,7 +171,7 @@ class ApironeMccp extends \Opencart\System\Engine\Controller
 
         $statusLink = $this->url->link('extension/apirone/payment/apirone_mccp|status', 'id=' . $invoice->invoice);
 
-        $data['invoice'] = Payment::invoice($invoice, $currency, $statusLink, $merchant);
+        $data['invoice'] = Payment::invoice($invoice, $currency, $statusLink, $merchant, HTTP_SERVER);
 
         foreach (glob("catalog/view/javascript/jquery/jquery*.min.js") as $filename) {
             $data['jquery'] = '/' . $filename;
