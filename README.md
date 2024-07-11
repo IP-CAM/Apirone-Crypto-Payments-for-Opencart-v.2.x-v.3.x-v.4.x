@@ -83,6 +83,11 @@ License MIT
 
 ## Changelog ##
 
+### Version 1.2.6 ###
+
+* Show tbtc for non-auth users when * is set into test customer field.
+* Fixed links when oc installed to relative path (not www-root)
+
 ### Version 1.2.5 ###
 
 * Added internal QR code generator.

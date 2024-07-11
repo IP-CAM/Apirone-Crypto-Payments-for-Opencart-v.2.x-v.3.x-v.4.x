@@ -57,7 +57,7 @@ $_['entry_confirmation'] = 'Confirmations count';
 $_['entry_timeout'] = 'Payment timeout';
 
 $_['entry_testcustomer'] = 'Test currency customer';
-$_['entry_testcustomer_placeholder'] = 'example.customer@example.com';
+$_['entry_testcustomer_placeholder'] = 'testcustomer@example.com';
 
 // Warning
 // Error
