@@ -166,15 +166,15 @@ class ApironeMccp extends \Opencart\System\Engine\Controller
             $merchant = $this->config->get('config_name');
         }
         $data['title'] = "Pay via Crypto";
-        $data['style_raw'] = '/' . Payment::getAssetsPath('style.min.css', DIR_OPENCART);
-        $data['script_raw'] = '/' . Payment::getAssetsPath('script.min.js', DIR_OPENCART);
+        $data['style_raw'] = HTTP_SERVER . Payment::getAssetsPath('style.min.css', DIR_OPENCART);
+        $data['script_raw'] = HTTP_SERVER . Payment::getAssetsPath('script.min.js', DIR_OPENCART);
 
         $statusLink = $this->url->link('extension/apirone/payment/apirone_mccp|status', 'id=' . $invoice->invoice);
 
         $data['invoice'] = Payment::invoice($invoice, $currency, $statusLink, $merchant, HTTP_SERVER);
 
         foreach (glob("catalog/view/javascript/jquery/jquery*.min.js") as $filename) {
-            $data['jquery'] = '/' . $filename;
+            $data['jquery'] = HTTP_SERVER . $filename;
         }
 
         if($clear_cart) {
