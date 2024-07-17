@@ -128,7 +128,7 @@ class ModelExtensionPaymentApironeMccp extends Model
     {
         $testcustomer = $this->config->get('payment_apirone_mccp_testcustomer');
 
-        if ($testcustomer = '*') {
+        if ($testcustomer == '*') {
             return true;
         }
 
