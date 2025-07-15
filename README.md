@@ -8,7 +8,7 @@ Accept the most popular cryptocurrencies (BTC, LTC, BCH, Doge, etc.) in your sto
 
 * The payment is automatically forwarded from a temporarily generated crypto-address directly into your wallet (temp address associates payment with an exact order)
 
-* The payment gateway has a fixed fee which does not depend on the amount of the order. Small payments are free. [https://apirone.com/pricing](https://apirone.com/pricing)
+* The fee can be fixed or charged in amount of 1% of the transfer. [https://apirone.com/pricing](https://apirone.com/pricing)
 
 * White label processing (your online store accepts payments on the store side without redirects, iframes, advertisements, logos, etc.)
 
